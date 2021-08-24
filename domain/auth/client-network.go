@@ -19,7 +19,6 @@ type clientServer struct {
 func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
 	if c.Context() == nil {
 		log.Printf("No client for this connection %s, dropping.\n", c.RemoteAddr())
-		_ = c.Close()
 		return nil, gnet.Close
 	}
 
