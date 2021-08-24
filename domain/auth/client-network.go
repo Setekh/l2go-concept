@@ -18,12 +18,12 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
-	client := getClient(c)
-
-	if client == nil {
+	if c.Context() == nil {
 		log.Printf("No client for this connection %s, dropping.\n", c.RemoteAddr())
 		return nil, gnet.Close
 	}
+
+	client := c.Context().(Client)
 
 	code, bytes, err := client.Receive(frame)
 	if err != nil {
@@ -33,7 +33,7 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 
 	log.Printf("Recieved code %d with decoded %s\n", code, hex.Dump(bytes))
 
-	return
+	return nil, gnet.None
 }
 
 func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
@@ -73,18 +73,7 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 	return
 }
 
-func getClient(c gnet.Conn) *Client {
-	context := c.Context()
-
-	switch client := context.(type) {
-	case Client:
-		return &client
-	}
-
-	return nil
-}
-
 func StartClientServer() {
 	var clientServer = &clientServer{}
-	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:2106"))
+	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:2106", gnet.WithReusePort(true)))
 }
