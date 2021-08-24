@@ -18,9 +18,10 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
-	var client *Client = findClient(c)
+	client := getClient(c)
 
 	if client == nil {
+		log.Printf("No client for this connection %s, dropping.\n", c.RemoteAddr())
 		return nil, gnet.Close
 	}
 
@@ -37,6 +38,7 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 
 func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
 	client := newClient(c)
+	c.SetContext(client)
 
 	clients = append(clients, client)
 	log.Println("New client!, total:", len(clients))
@@ -71,12 +73,14 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 	return
 }
 
-func findClient(c gnet.Conn) *Client {
-	for _, client := range clients {
-		if client.conn.RemoteAddr() == c.RemoteAddr() {
-			return &client
-		}
+func getClient(c gnet.Conn) *Client {
+	context := c.Context()
+
+	switch client := context.(type) {
+	case Client:
+		return &client
 	}
+
 	return nil
 }
 
