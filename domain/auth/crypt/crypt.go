@@ -30,14 +30,15 @@ func init() {
 
 func CreateKeyPair() ScrambledKeyPair {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 1024)
-	keyPair := ScrambledKeyPair{
+
+	scrambledModulus := privateKey.PublicKey.N.Bytes()
+	scrambleModulus(scrambledModulus)
+
+	return ScrambledKeyPair{
 		PrivateKey:       privateKey,
 		PublicKey:        privateKey.PublicKey,
-		ScrambledModulus: privateKey.PublicKey.N.Bytes(),
+		ScrambledModulus: scrambledModulus,
 	}
-
-	scrambleModulus(keyPair.ScrambledModulus)
-	return keyPair
 }
 
 func scrambleModulus(n []byte) {
@@ -91,7 +92,6 @@ func Checksum(raw []byte) bool {
 }
 
 func BlowfishDecrypt(encrypted []byte) ([]byte, error) {
-	ciphe, _ := blowfish.NewCipher([]byte("_;5.]94-31==-%xT!^[$\000"))
 	// Check if the encrypted data is a multiple of our block size
 	if len(encrypted)%8 != 0 {
 		return nil, errors.New("the encrypted data is not a multiple of the block size")
@@ -102,7 +102,7 @@ func BlowfishDecrypt(encrypted []byte) ([]byte, error) {
 	decrypted := make([]byte, len(encrypted))
 
 	for i := 0; i < count; i++ {
-		ciphe.Decrypt(decrypted[i*8:], encrypted[i*8:])
+		cipher.Decrypt(decrypted[i*8:], encrypted[i*8:])
 	}
 
 	return decrypted, nil

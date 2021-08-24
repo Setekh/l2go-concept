@@ -80,14 +80,7 @@ func (cl *Client) SendPacket(data []byte, doChecksum, doBlowfish bool) error {
 }
 
 func (cl *Client) Receive(frame []byte) (opcode byte, data []byte, e error) {
-	// Read the first two bytes to define the packet size
-	header := make([]byte, 2)
-	//n, err := c.Socket.Read(header)
-	//
-	//if n != 2 || err != nil {
-	//	return 0x00, nil, errors.New("An error occured while reading the packet header.")
-	//}
-	copy(header, frame[:2])
+	header := frame[:2] // TODO this should be handled by the field length decoder
 
 	// Calculate the packet size
 	size := 0
@@ -95,15 +88,7 @@ func (cl *Client) Receive(frame []byte) (opcode byte, data []byte, e error) {
 	size = size + int(header[1])*256
 
 	// Allocate the appropriate size for our data (size - 2 bytes used for the length
-	data = make([]byte, size-2)
-	copy(data, frame[2:])
-
-	// Read the encrypted part of the packet
-	//n, err = c.Socket.Read(data)
-	//
-	//if n != size-2 || err != nil {
-	//	return 0x00, nil, errors.New("An error occured while reading the packet data.")
-	//}
+	data = frame[2:]
 
 	// Print the raw packet
 	log.Printf("Raw packet: \nheader:%s\n%s\n", hex.Dump(header), hex.Dump(data))
