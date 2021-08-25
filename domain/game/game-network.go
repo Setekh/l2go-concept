@@ -1,11 +1,10 @@
-package auth
+package game
 
 import (
 	"encoding/hex"
 	"github.com/panjf2000/gnet"
 	"github.com/panjf2000/gnet/pool/goroutine"
-	"l2go-concept/domain/auth/packets/server"
-	"l2go-concept/domain/network"
+	"l2go-concept/domain/game/storage"
 	"log"
 )
 
@@ -13,7 +12,8 @@ var clients []Client
 
 type clientServer struct {
 	*gnet.EventServer
-	pool *goroutine.Pool
+	pool    *goroutine.Pool
+	storage storage.GameStorage
 }
 
 func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
@@ -26,13 +26,13 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 
 	// Handle this in another goroutine
 	_ = es.pool.Submit(func() {
-		onFrameDecoded(frame, client)
+		onFrameDecoded(frame, client, es.storage)
 	})
 
 	return nil, gnet.None
 }
 
-func onFrameDecoded(frame []byte, client Client) {
+func onFrameDecoded(frame []byte, client Client, storage storage.GameStorage) {
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
@@ -44,7 +44,7 @@ func onFrameDecoded(frame []byte, client Client) {
 
 	log.Printf("Recieved code %d with decoded %s\n", code, hex.Dump(bytes))
 
-	HandlePacket(client, uint(code), bytes)
+	HandlePacket(client, storage, uint(code), bytes)
 }
 
 func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
@@ -52,26 +52,22 @@ func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
 	c.SetContext(client)
 
 	clients = append(clients, client)
-	log.Println("New recieved!, total:", len(clients))
-
-	buffer := network.NewBuffer()
-	server.CreateInitPacket(client.blowfishKey, client.rsaKeyPair.ScrambledModulus, buffer)
-	bytes := buffer.Bytes()
-
-	err := client.SendPacket(bytes, false, false)
-	if err != nil {
-		panic(err)
-	}
+	log.Println("New received!, total:", len(clients))
 
 	log.Printf("Got connection %s", c.RemoteAddr())
 	return
 }
 
 func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action) {
-	var index = -1
+	if conn.Context() == nil {
+		return
+	}
 
+	client := conn.Context().(Client)
+
+	var index = -1
 	for i, c := range clients {
-		if c.conn.RemoteAddr() == conn.RemoteAddr() {
+		if c.sessionId == client.sessionId {
 			index = i
 		}
 	}
@@ -84,12 +80,13 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 	return
 }
 
-func StartClientServer() {
+func StartClientServer(store storage.GameStorage) {
 	p := goroutine.Default()
 	defer p.Release()
 
 	var clientServer = &clientServer{
-		pool: p,
+		pool:    p,
+		storage: store,
 	}
-	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:2106", gnet.WithReusePort(true)))
+	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:7777", gnet.WithReusePort(true)))
 }

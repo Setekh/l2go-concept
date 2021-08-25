@@ -1,8 +1,6 @@
-package auth
+package game
 
 import (
-	"crypto/rand"
-	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"github.com/panjf2000/gnet"
@@ -12,25 +10,13 @@ import (
 )
 
 type Client struct {
-	blowfishKey []byte
-	sessionId   uint64
-	rsaKeyPair  crypt.ScrambledKeyPair
-	conn        gnet.Conn
+	sessionId uint64
+	conn      gnet.Conn
 }
 
 func newClient(conn gnet.Conn) Client {
-	var blowKey = make([]byte, 16)
-	var sessionId = make([]byte, 8)
-
-	_, _ = rand.Read(blowKey)
-	_, _ = rand.Read(sessionId)
-
-	keyPair := crypt.CreateKeyPair()
 	return Client{
-		blowfishKey: blowKey,
-		rsaKeyPair:  keyPair,
-		conn:        conn,
-		sessionId:   binary.LittleEndian.Uint64(sessionId),
+		conn: conn,
 	}
 }
 
