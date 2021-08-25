@@ -1,4 +1,4 @@
-package packets
+package network
 
 // TODO make a pool of buffers
 

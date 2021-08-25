@@ -5,7 +5,7 @@ import (
 	"github.com/panjf2000/gnet"
 	"github.com/panjf2000/gnet/pool/goroutine"
 	"l2go-concept/domain/auth/packets/server"
-	"l2go-concept/domain/packets"
+	"l2go-concept/domain/network"
 	"log"
 )
 
@@ -18,7 +18,7 @@ type clientServer struct {
 
 func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
 	if c.Context() == nil {
-		log.Printf("No client for this connection %s, dropping.\n", c.RemoteAddr())
+		log.Printf("No recieved for this connection %s, dropping.\n", c.RemoteAddr())
 		return nil, gnet.Close
 	}
 
@@ -26,13 +26,13 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 
 	// Handle this in another goroutine
 	_ = es.pool.Submit(func() {
-		handlePacket(frame, client)
+		onFrameDecoded(frame, client)
 	})
 
 	return nil, gnet.None
 }
 
-func handlePacket(frame []byte, client Client) {
+func onFrameDecoded(frame []byte, client Client) {
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
@@ -43,6 +43,8 @@ func handlePacket(frame []byte, client Client) {
 	}
 
 	log.Printf("Recieved code %d with decoded %s\n", code, hex.Dump(bytes))
+
+	HandlePacket(client, uint(code), bytes)
 }
 
 func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
@@ -50,9 +52,9 @@ func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
 	c.SetContext(client)
 
 	clients = append(clients, client)
-	log.Println("New client!, total:", len(clients))
+	log.Println("New recieved!, total:", len(clients))
 
-	buffer := packets.NewBuffer()
+	buffer := network.NewBuffer()
 	server.CreateInitPacket(client.blowfishKey, client.rsaKeyPair.ScrambledModulus, buffer)
 	bytes := buffer.Bytes()
 

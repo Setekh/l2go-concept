@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/panjf2000/gnet"
 	"l2go-concept/domain/auth/crypt"
-	"l2go-concept/domain/packets"
+	"l2go-concept/domain/network"
 	"log"
 )
 
@@ -26,6 +26,10 @@ func newClient(conn gnet.Conn) Client {
 		rsaKeyPair:  keyPair,
 		conn:        conn,
 	}
+}
+
+func (cl *Client) SendPacketEncoded(buffer *network.Buffer) error {
+	return cl.SendPacket(buffer.Bytes(), true, true)
 }
 
 func (cl *Client) SendPacket(data []byte, doChecksum, doBlowfish bool) error {
@@ -60,7 +64,7 @@ func (cl *Client) SendPacket(data []byte, doChecksum, doBlowfish bool) error {
 	length := uint16(len(data) + 2)
 
 	// Put everything together
-	buffer := packets.NewBuffer()
+	buffer := network.NewBuffer()
 	buffer.WriteUInt16(length)
 	buffer.Write(data)
 

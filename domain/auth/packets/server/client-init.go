@@ -1,10 +1,10 @@
 package server
 
 import (
-	"l2go-concept/domain/packets"
+	"l2go-concept/domain/network"
 )
 
-func CreateInitPacket(blowKey []byte, modulus []byte, buffer *packets.Buffer) {
+func CreateInitPacket(blowKey []byte, modulus []byte, buffer *network.Buffer) {
 	buffer.WriteByte(0x00)
 	buffer.Write([]byte{0x9c, 0x77, 0xed, 0x03}) // Session id?
 	buffer.Write([]byte{0x5a, 0x78, 0x00, 0x00}) // Protocol version : 785a
