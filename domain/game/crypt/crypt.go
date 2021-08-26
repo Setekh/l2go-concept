@@ -1,16 +1,13 @@
 package crypt
 
-type Cipher struct {
-	InputKey  []byte
-	OutputKey []byte
-}
+var (
+	InputKey  = []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}
+	OutputKey = []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}
+)
 
-func NewCipher() *Cipher {
-	return &Cipher{InputKey: []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87},
-		OutputKey: []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}}
-}
+func Decrypt(raw []byte) {
+	key := InputKey
 
-func Decrypt(raw, key []byte) {
 	temp := 0
 	j := 0
 	length := len(raw)
@@ -39,7 +36,8 @@ func Decrypt(raw, key []byte) {
 	key[3] = byte(old >> 0x18)
 }
 
-func Encrypt(raw, key []byte) {
+func Encrypt(raw []byte) {
+	key := OutputKey
 	temp := 0
 	j := 0
 	length := len(raw)

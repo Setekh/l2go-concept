@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-var clients []Client
+var clients []*Client
 
 type clientServer struct {
 	*gnet.EventServer
@@ -22,7 +22,7 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 		return nil, gnet.Close
 	}
 
-	client := c.Context().(Client)
+	client := c.Context().(*Client)
 
 	// Handle this in another goroutine
 	_ = es.pool.Submit(func() {
@@ -32,7 +32,7 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 	return nil, gnet.None
 }
 
-func onFrameDecoded(frame []byte, client Client, storage storage.GameStorage) {
+func onFrameDecoded(frame []byte, client *Client, storage storage.GameStorage) {
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
@@ -63,7 +63,7 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 		return
 	}
 
-	client := conn.Context().(Client)
+	client := conn.Context().(*Client)
 
 	var index = -1
 	for i, c := range clients {
