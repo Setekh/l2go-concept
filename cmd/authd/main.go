@@ -1,8 +1,9 @@
 package main
 
 import (
-	"l2go-concept/domain/auth"
-	"l2go-concept/domain/auth/storage"
+	"l2go-concept/internal/auth/network"
+	"l2go-concept/internal/auth/storage"
+	auth2 "l2go-concept/pkg/auth"
 	"sync"
 )
 
@@ -20,11 +21,11 @@ func main() {
 	waitGroup.Wait()
 }
 
-func startClientService(store storage.LoginStorage) {
+func startClientService(store auth2.Storage) {
 	waitGroup.Add(1)
 	go func() {
 		defer waitGroup.Done()
 
-		auth.StartClientServer(store)
+		network.StartClientServer(store)
 	}()
 }

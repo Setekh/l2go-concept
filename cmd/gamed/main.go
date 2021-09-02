@@ -1,8 +1,8 @@
 package main
 
 import (
-	"l2go-concept/domain/game"
-	"l2go-concept/domain/game/storage"
+	"l2go-concept/internal/game"
+	"l2go-concept/internal/game/storage"
 	"sync"
 )
 
