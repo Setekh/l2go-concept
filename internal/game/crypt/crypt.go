@@ -1,12 +1,21 @@
 package crypt
 
-var (
-	InputKey  = []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}
-	OutputKey = []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}
-)
+func GetKey() []byte {
+	return []byte{0x94, 0x35, 0x00, 0x00, 0xa1, 0x6c, 0x54, 0x87}
+}
 
-func Decrypt(raw []byte) {
-	key := InputKey
+type Crypt struct {
+	InputKey  []byte
+	OutputKey []byte
+}
+
+func (c *Crypt) SetKey(key []byte) {
+	copy(c.InputKey, key)
+	copy(c.OutputKey, key)
+}
+
+func (c *Crypt) Decrypt(raw []byte) {
+	key := c.InputKey
 
 	temp := 0
 	j := 0
@@ -36,10 +45,8 @@ func Decrypt(raw []byte) {
 	key[3] = byte(old >> 0x18)
 }
 
-//  heh 42417913 64533064 4170964718 1217926859
-// dope 4170964718 64533064 42417913 4288157387
-func Encrypt(raw []byte) {
-	key := OutputKey
+func (c *Crypt) Encrypt(raw []byte) {
+	key := c.OutputKey
 	temp := 0
 	j := 0
 	length := len(raw)

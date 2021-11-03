@@ -10,7 +10,7 @@ func WritePlayOk(serverId byte, key auth.SessionKey) *network.Buffer {
 	buffer.WriteByte(0x07)
 	buffer.WriteUInt32(key.PlayOk1)
 	buffer.WriteUInt32(key.PlayOk2)
-	//buffer.WriteByte(serverId) // other packs
+	buffer.WriteByte(serverId) // other packs
 
 	return buffer
 }

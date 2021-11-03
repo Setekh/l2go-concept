@@ -7,8 +7,8 @@ import (
 
 func WriteCharacterList(characters []model.Character) *network.Buffer {
 	buffer := network.NewBuffer()
-	buffer.WriteByte(0x13)                       // Packet type: CharList
-	buffer.Write([]byte{0x00, 0x00, 0x00, 0x00}) // TODO
+	buffer.WriteByte(0x13)   // Packet type: CharList
+	buffer.WriteUInt32(0x00) // TODO
 
 	return buffer
 }

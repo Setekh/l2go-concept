@@ -13,6 +13,7 @@ import (
 type Client struct {
 	sessionId    uint64
 	cryptEnabled bool
+	crypt        crypt.Crypt
 	conn         gnet.Conn
 }
 
@@ -20,6 +21,11 @@ func newClient(conn gnet.Conn) *Client {
 	println("New client!")
 	return &Client{
 		conn: conn,
+		crypt: crypt.Crypt{
+			InputKey:  crypt.GetKey(),
+			OutputKey: crypt.GetKey(),
+		},
+		cryptEnabled: false,
 	}
 }
 
@@ -28,7 +34,7 @@ func (cl *Client) SendPacket(srcBuff *network.Buffer) error {
 
 	if cl.cryptEnabled {
 		log.Printf("Encoding packet %X", data[0])
-		crypt.Encrypt(data)
+		cl.crypt.Encrypt(data)
 	}
 
 	// Calculate the packet length
@@ -70,7 +76,7 @@ func (cl *Client) Receive(frame []byte) (opcode byte, data []byte, e error) {
 
 	if cl.cryptEnabled {
 		// Decrypt the packet data using the xor key
-		crypt.Decrypt(data)
+		cl.crypt.Decrypt(data)
 
 		// Print the decrypted packet
 		fmt.Printf("Decrypted packet content : %s\n", hex.Dump(data))
