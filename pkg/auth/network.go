@@ -13,8 +13,8 @@ type SessionKey struct {
 	LoginOk2 uint32
 }
 
-type ClientProperties struct {
-	SessionId  uint64
+type ClientOptions struct {
+	SessionId  uint32
 	SessionKey SessionKey
 	RsaKeyPair crypt.ScrambledKeyPair
 	Conn       gnet.Conn
@@ -24,9 +24,14 @@ type Client interface {
 	SendPacketEncoded(buffer *network.Buffer) error
 	SendPacket(buffer *network.Buffer, doChecksum, doBlowfish bool) error
 	Receive(frame []byte) (opcode byte, data []byte, e error)
-	Properties() ClientProperties
+	Options() *ClientOptions
 }
 
-type ClientPacketHandler interface {
-	HandlePacket(opcode uint, client Client, reader *network.Reader, store Storage)
+type Context struct {
+	Client  Client
+	Storage Storage
+}
+
+type ClientPacket interface {
+	HandlePacket(reader *network.Reader, context Context)
 }

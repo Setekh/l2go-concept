@@ -17,6 +17,7 @@ type Client struct {
 }
 
 func newClient(conn gnet.Conn) *Client {
+	println("New client!")
 	return &Client{
 		conn: conn,
 	}

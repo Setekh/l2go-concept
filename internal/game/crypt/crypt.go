@@ -36,6 +36,8 @@ func Decrypt(raw []byte) {
 	key[3] = byte(old >> 0x18)
 }
 
+//  heh 42417913 64533064 4170964718 1217926859
+// dope 4170964718 64533064 42417913 4288157387
 func Encrypt(raw []byte) {
 	key := OutputKey
 	temp := 0

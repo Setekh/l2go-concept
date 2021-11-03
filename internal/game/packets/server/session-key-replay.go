@@ -18,7 +18,7 @@ func utf16leMd5(s string) []byte {
 	return b
 }
 
-func WriteSeasonKey(account string, key auth.SessionKey) *network.Buffer {
+func WriteSeasonKey(account string, key auth.SessionKey) *network.Buffer { // TODO this whole thing might be broken
 	buffer := network.NewBuffer()
 
 	buffer.WriteByte(0x05)
@@ -28,17 +28,17 @@ func WriteSeasonKey(account string, key auth.SessionKey) *network.Buffer {
 	utf16.Encode(accountBytes)
 
 	//TODO move this into a method
-	for _, accountRune := range accountBytes {
-		buffer.WriteRune(accountRune)
-	}
-
-	buffer.WriteByte(0x00)
-	buffer.WriteByte(0x00)
-
-	buffer.WriteUInt32(uint32(key.LoginOk1))
-	buffer.WriteUInt32(uint32(key.LoginOk2))
-	buffer.WriteUInt32(uint32(key.PlayOk1))
-	buffer.WriteUInt32(uint32(key.PlayOk2))
+	//for _, accountRune := range accountBytes {
+	//	buffer.WriteRune(accountRune)
+	//}
+	//
+	//buffer.WriteByte(0x00)
+	//buffer.WriteByte(0x00)
+	//
+	//buffer.WriteUInt32(key.LoginOk1)
+	//buffer.WriteUInt32(key.LoginOk2)
+	//buffer.WriteUInt32(key.PlayOk1)
+	//buffer.WriteUInt32(key.PlayOk2)
 
 	log.Printf("Sending auth reply!\n%s\n", hex.Dump(buffer.Bytes()))
 	return buffer

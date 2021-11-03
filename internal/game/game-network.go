@@ -39,7 +39,6 @@ func onFrameDecoded(frame []byte, client *Client, storage storage.GameStorage) {
 	code, bytes, err := client.Receive(frame)
 	if err != nil {
 		log.Println("Failed decoding packet", err)
-		recover()
 	}
 
 	log.Printf("Recieved code %d with decoded %s\n", code, hex.Dump(bytes))

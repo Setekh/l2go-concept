@@ -2,7 +2,6 @@ package network
 
 import (
 	"encoding/hex"
-	"l2go-concept/internal/auth/ack"
 	"l2go-concept/pkg/auth"
 	"log"
 
@@ -55,7 +54,7 @@ func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
 	clients = append(clients, client)
 	log.Println("New received!, total:", len(clients))
 
-	err := client.SendPacket(ack.ClientAckPacket(client.blowfishKey, client.rsaKeyPair.ScrambledModulus), false, false)
+	err := client.SendPacket(clientInit(client.sessionId, client.blowfishKey, client.rsaKeyPair.ScrambledModulus), false, false)
 	if err != nil {
 		log.Printf("Failed sending packet to remote connection! %s\n", c.RemoteAddr())
 	}

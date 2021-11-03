@@ -10,19 +10,18 @@ import (
 	"l2go-concept/pkg/auth"
 	"l2go-concept/pkg/auth/crypt"
 	"log"
-	mathRand "math/rand"
 )
 
 type Client struct {
 	blowfishKey []byte
-	sessionId   uint64 // TODO see if we still need this
+	sessionId   uint32
 	sessionKey  auth.SessionKey
 	rsaKeyPair  crypt.ScrambledKeyPair
 	conn        gnet.Conn
 }
 
-func (cl *Client) Properties() auth.ClientProperties {
-	return auth.ClientProperties{
+func (cl *Client) Options() *auth.ClientOptions {
+	return &auth.ClientOptions{
 		SessionId:  cl.sessionId,
 		SessionKey: cl.sessionKey,
 		RsaKeyPair: cl.rsaKeyPair,
@@ -30,28 +29,34 @@ func (cl *Client) Properties() auth.ClientProperties {
 	}
 }
 
-func NewClient2() *Client {
-	return newClient(nil)
-}
-
 func newClient(conn gnet.Conn) *Client {
 	var blowKey = make([]byte, 16)
-	var sessionId = make([]byte, 8)
+	var sessionId = make([]byte, 4)
+
+	var playOk1 = make([]byte, 4)
+	var playOk2 = make([]byte, 4)
+	var loginOk1 = make([]byte, 4)
+	var loginOK2 = make([]byte, 4)
 
 	_, _ = rand.Read(blowKey)
 	_, _ = rand.Read(sessionId)
+
+	_, _ = rand.Read(playOk1)
+	_, _ = rand.Read(playOk2)
+	_, _ = rand.Read(loginOk1)
+	_, _ = rand.Read(loginOK2)
 
 	keyPair := crypt.CreateKeyPair()
 	return &Client{
 		blowfishKey: blowKey,
 		rsaKeyPair:  keyPair,
 		conn:        conn,
-		sessionId:   binary.LittleEndian.Uint64(sessionId),
+		sessionId:   binary.LittleEndian.Uint32(sessionId),
 		sessionKey: auth.SessionKey{
-			PlayOk1:  mathRand.Uint32(),
-			PlayOk2:  mathRand.Uint32(),
-			LoginOk1: mathRand.Uint32(),
-			LoginOk2: mathRand.Uint32(),
+			PlayOk1:  binary.LittleEndian.Uint32(playOk1),
+			PlayOk2:  binary.LittleEndian.Uint32(playOk2),
+			LoginOk1: binary.LittleEndian.Uint32(loginOk1),
+			LoginOk2: binary.LittleEndian.Uint32(loginOK2),
 		},
 	}
 }
