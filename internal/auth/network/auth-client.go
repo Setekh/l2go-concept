@@ -30,6 +30,10 @@ func (cl *Client) Properties() auth.ClientProperties {
 	}
 }
 
+func NewClient2() *Client {
+	return newClient(nil)
+}
+
 func newClient(conn gnet.Conn) *Client {
 	var blowKey = make([]byte, 16)
 	var sessionId = make([]byte, 8)

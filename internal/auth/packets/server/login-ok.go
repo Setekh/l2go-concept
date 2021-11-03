@@ -21,5 +21,6 @@ func WriteLoginOk(sessionId uint64, key auth.SessionKey) *network.Buffer {
 	buffer.WriteUInt32(0x00)
 	buffer.WriteUInt32(0x00)
 	buffer.Write(make([]byte, 16))
+	buffer.WriteUInt32(0x00)
 	return buffer
 }

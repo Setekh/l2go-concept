@@ -15,7 +15,8 @@ type context struct {
 }
 
 func CreateStorage() GameStorage {
-	db, err := gorm.Open(sqlite.Open("game.db"), &gorm.Config{})
+	open := sqlite.Open("game.db")
+	db, err := gorm.Open(open, &gorm.Config{})
 	if err != nil {
 		log.Fatalln("Failed db connection!", err)
 	}

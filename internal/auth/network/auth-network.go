@@ -2,11 +2,12 @@ package network
 
 import (
 	"encoding/hex"
-	"github.com/panjf2000/gnet"
-	"github.com/panjf2000/gnet/pool/goroutine"
 	"l2go-concept/internal/auth/ack"
 	"l2go-concept/pkg/auth"
 	"log"
+
+	"github.com/panjf2000/gnet"
+	"github.com/panjf2000/gnet/pool/goroutine"
 )
 
 var clients []*Client
