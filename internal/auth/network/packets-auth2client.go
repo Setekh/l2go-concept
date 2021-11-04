@@ -2,13 +2,13 @@ package network
 
 import (
 	"l2go-concept/internal/auth/model"
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 	"l2go-concept/pkg/auth"
 	"net"
 )
 
-func clientInit(sessionId uint32, blowKey []byte, modulus []byte) *network.Buffer {
-	buffer := network.NewBuffer()
+func clientInit(sessionId uint32, blowKey []byte, modulus []byte) *common.Buffer {
+	buffer := common.NewBuffer()
 	buffer.WriteByte(0x00)
 
 	buffer.WriteUInt32(sessionId)                // Session id
@@ -28,8 +28,8 @@ func clientInit(sessionId uint32, blowKey []byte, modulus []byte) *network.Buffe
 	return buffer
 }
 
-func GGAuthResponse(response uint32) *network.Buffer {
-	buffer := network.NewBuffer()
+func GGAuthResponse(response uint32) *common.Buffer {
+	buffer := common.NewBuffer()
 
 	buffer.WriteByte(0x0B)
 	buffer.WriteUInt32(response)
@@ -41,8 +41,8 @@ func GGAuthResponse(response uint32) *network.Buffer {
 	return buffer
 }
 
-func WriteServerList(lastServer uint8, servers []*model.GameServer) *network.Buffer {
-	buffer := network.NewBuffer()
+func WriteServerList(lastServer uint8, servers []*model.GameServer) *common.Buffer {
+	buffer := common.NewBuffer()
 
 	buffer.WriteByte(0x04)
 	buffer.WriteByte(byte(len(servers)))
@@ -91,16 +91,16 @@ const (
 	AccountInUse = 0x07
 )
 
-func LoginFail(reason uint32) *network.Buffer {
-	buffer := network.NewBuffer()
+func LoginFail(reason uint32) *common.Buffer {
+	buffer := common.NewBuffer()
 
 	buffer.WriteByte(0x06)
 	buffer.WriteUInt32(reason)
 	return buffer
 }
 
-func LoginOk(key auth.SessionKey) *network.Buffer {
-	buffer := network.NewBuffer()
+func LoginOk(key auth.SessionKey) *common.Buffer {
+	buffer := common.NewBuffer()
 
 	buffer.WriteByte(0x03)
 
@@ -121,8 +121,8 @@ func LoginOk(key auth.SessionKey) *network.Buffer {
 	return buffer
 }
 
-func PlayOk(serverId byte, key auth.SessionKey) *network.Buffer {
-	buffer := network.NewBuffer()
+func PlayOk(serverId byte, key auth.SessionKey) *common.Buffer {
+	buffer := common.NewBuffer()
 	buffer.WriteByte(0x07)
 	buffer.WriteUInt32(key.PlayOk1)
 	buffer.WriteUInt32(key.PlayOk2)

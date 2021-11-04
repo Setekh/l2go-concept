@@ -1,9 +1,11 @@
-package auth
+package game
 
 import (
-	"fmt"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
+	"log"
+	"os"
+	"strconv"
 )
 
 type ServerConfig struct {
@@ -13,6 +15,7 @@ type ServerConfig struct {
 
 type GeneralConfig struct {
 	AuthPassword string
+	ServerId     uint
 }
 
 type Configuration struct {
@@ -23,21 +26,23 @@ type Configuration struct {
 var Config *Configuration
 
 func init() {
+	port, errParse := strconv.Atoi(os.Getenv("server.port"))
+
+	if errParse != nil {
+		port = 7777
+	}
+
 	var config = &Configuration{
 		Server: ServerConfig{
-			Hostname: "0.0.0.0",
-			Port:     2106,
-		},
-		General: GeneralConfig{
-			AuthPassword: "root",
+			Hostname: os.Getenv("server.host"),
+			Port:     uint(port),
 		},
 	}
 
-	data, _ := ioutil.ReadFile("./config/Server.toml")
+	data, _ := ioutil.ReadFile("./config/server.toml")
 	err := toml.Unmarshal(data, config)
-
 	if err != nil {
-		fmt.Println("Failed loading config")
+		log.Println("Failed loading server config!", err.Error())
 	}
 
 	Config = config

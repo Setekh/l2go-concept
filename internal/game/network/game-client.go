@@ -1,12 +1,12 @@
-package game
+package network
 
 import (
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/panjf2000/gnet"
-	"l2go-concept/internal/game/crypt"
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
+	"l2go-concept/internal/game/network/crypt"
 	"log"
 )
 
@@ -15,6 +15,8 @@ type Client struct {
 	cryptEnabled bool
 	crypt        crypt.Crypt
 	conn         gnet.Conn
+	accountName  string
+	playOk       uint32
 }
 
 func newClient(conn gnet.Conn) *Client {
@@ -29,7 +31,7 @@ func newClient(conn gnet.Conn) *Client {
 	}
 }
 
-func (cl *Client) SendPacket(srcBuff *network.Buffer) error {
+func (cl *Client) SendPacket(srcBuff *common.Buffer) error {
 	data := srcBuff.Bytes()
 
 	if cl.cryptEnabled {
@@ -41,7 +43,7 @@ func (cl *Client) SendPacket(srcBuff *network.Buffer) error {
 	length := uint16(len(data) + 2)
 
 	// Put everything together
-	buffer := network.NewBuffer()
+	buffer := common.NewBuffer()
 	buffer.WriteUInt16(length)
 	buffer.Write(data)
 

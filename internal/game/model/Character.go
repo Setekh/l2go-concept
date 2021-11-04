@@ -5,8 +5,9 @@ import "gorm.io/gorm"
 type Character struct {
 	gorm.Model
 
-	entity      uint32
-	Name        string
+	EntityId    uint32 `gorm:"-"`
+	AccountName string `gorm:"not null"`
+	Name        string `gorm:"uniqueIndex"`
 	Level       uint32
 	SkillPoints uint32
 	Experience  uint32
@@ -20,7 +21,7 @@ type Character struct {
 	Karma       uint32
 	DeleteTime  uint32
 	CurrentHp   float64
-	MaxHp       float64
+	MaxHp       float64 `gorm:"-"`
 	CurrentMp   float64
-	MaxMp       float64
+	MaxMp       float64 `gorm:"-"`
 }

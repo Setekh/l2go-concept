@@ -92,9 +92,9 @@ func StartClientServer(store authDef.Storage) {
 	}
 
 	serverConfig := auth.Config.Server
-	address := serverConfig.Address
+	hostname := serverConfig.Hostname
 	port := serverConfig.Port
 
-	log.Printf("Server started on address: %s:%d\n", address, port)
-	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, fmt.Sprintf("tcp://%s:%d", address, port), gnet.WithReusePort(true)))
+	log.Printf("Server started on address: %s:%d\n", hostname, port)
+	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, fmt.Sprintf("tcp://%s:%d", hostname, port), gnet.WithReusePort(true)))
 }

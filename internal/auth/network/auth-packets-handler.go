@@ -1,7 +1,7 @@
 package network
 
 import (
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 	"l2go-concept/pkg/auth"
 	"log"
 )
@@ -16,7 +16,7 @@ func init() {
 }
 
 func HandlePacket(client *Client, store auth.Storage, opcode uint, bytes []byte) {
-	var reader = network.NewReader(bytes)
+	var reader = common.NewReader(bytes)
 
 	handler := packets[opcode]
 

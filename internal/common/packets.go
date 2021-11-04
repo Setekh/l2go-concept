@@ -1,4 +1,4 @@
-package network
+package common
 
 // TODO make a pool of buffers
 
@@ -15,7 +15,7 @@ func NewBuffer() *Buffer {
 	return &Buffer{}
 }
 
-func (b *Buffer) WriteUInt64(value uint64) {
+func (b *Buffer) WriteUInt64(value float64) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
@@ -41,6 +41,14 @@ func (b *Buffer) WriteFloat64(value float64) {
 
 func (b *Buffer) WriteFloat32(value float32) {
 	binary.Write(b, binary.LittleEndian, value)
+}
+
+func (b *Buffer) WriteL2String(value string) {
+	for i := 0; i < len(value); i++ {
+		char := value[i]
+		binary.Write(b, binary.LittleEndian, uint16(char))
+	}
+	binary.Write(b, binary.LittleEndian, uint16(0x00))
 }
 
 type Reader struct {

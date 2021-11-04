@@ -1,11 +1,11 @@
 package server
 
 import (
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 )
 
-func WriteKeyPacket(cryptKey []byte) *network.Buffer {
-	buffer := network.NewBuffer()
+func WriteKeyPacket(cryptKey []byte) *common.Buffer {
+	buffer := common.NewBuffer()
 	buffer.WriteByte(0x00)
 	buffer.WriteByte(0x01) // Protocol is ok
 	buffer.Write(cryptKey)

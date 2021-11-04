@@ -1,17 +1,20 @@
 package network
 
 import (
+	bytes2 "bytes"
+	"encoding/hex"
 	"l2go-concept/internal/auth/model"
 	"l2go-concept/internal/auth/storage"
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 	"l2go-concept/pkg/auth"
 	"log"
 	"math/big"
+	"os"
 )
 
 type RequestGGAuth struct{}
 
-func (p *RequestGGAuth) HandlePacket(buff *network.Reader, ctx auth.Context) {
+func (p *RequestGGAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
 	var sessionId = buff.ReadUInt32()
 
 	options := ctx.Client.Options()
@@ -27,8 +30,16 @@ func (p *RequestGGAuth) HandlePacket(buff *network.Reader, ctx auth.Context) {
 
 type RequestServerList struct{}
 
-func (p *RequestServerList) HandlePacket(_ *network.Reader, ctx auth.Context) {
-	var publicIp = network.GetPublicIp()
+func (p *RequestServerList) HandlePacket(_ *common.Reader, ctx auth.Context) {
+	serverIp := os.Getenv("game.server.address")
+
+	var publicIp string
+
+	if serverIp != "" {
+		publicIp = serverIp
+	} else {
+		publicIp = common.GetPublicIp()
+	}
 
 	gs := &model.GameServer{
 		ServerId:   0x02,
@@ -47,7 +58,7 @@ func (p *RequestServerList) HandlePacket(_ *network.Reader, ctx auth.Context) {
 
 type RequestAuth struct{}
 
-func (p *RequestAuth) HandlePacket(buff *network.Reader, ctx auth.Context) {
+func (p *RequestAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
 	client := ctx.Client
 	store := ctx.Storage
 	properties := client.Options()
@@ -63,27 +74,36 @@ func (p *RequestAuth) HandlePacket(buff *network.Reader, ctx auth.Context) {
 	key := properties.RsaKeyPair.PrivateKey
 	decodedBytes := encoded.Exp(encoded, key.D, key.N).Bytes()
 
-	reader := network.NewReader(decodedBytes)
-	reader.Seek(3, 0)
-	var accountName = reader.ReadString() //strings.TrimSpace(string(decodedBytes[3:17]))
-	reader.Seek(17, 0)
-	var password = reader.ReadString() //strings.TrimSpace(string(decodedBytes[17:]))
+	println(hex.Dump(decodedBytes[3:17]))
+	println(hex.Dump(decodedBytes[17:]))
+
+	readTillStop := func(bytes []byte) string {
+		indexByte := bytes2.IndexByte(bytes, 0x00)
+		return string(bytes[:indexByte])
+	}
+
+	var accountName = readTillStop(decodedBytes[3:17])
+	var password = readTillStop(decodedBytes[17:])
 
 	result := store.VerifyAccount(accountName, password)
 	log.Printf("User %s is trying to connect with password %s %d result", accountName, password, result)
 
-	if result == storage.AccountNotFound || result == storage.Ok {
+	if result == storage.InvalidPassword {
+		client.SendPacketEncoded(LoginFail(AccountPasswordWrong))
+		return
+	}
+
+	if result == storage.AccountNotFound {
 		store.CreateAccount(accountName, password)
 		log.Printf("Created account for user %s", accountName)
-		client.SendPacketEncoded(LoginOk(properties.SessionKey))
-	} else if result == storage.InvalidPassword {
-		client.SendPacketEncoded(LoginFail(AccountPasswordWrong))
 	}
+
+	client.SendPacketEncoded(LoginOk(properties.SessionKey))
 }
 
 type RequestPlayServer struct{}
 
-func (p *RequestPlayServer) HandlePacket(buff *network.Reader, ctx auth.Context) {
+func (p *RequestPlayServer) HandlePacket(buff *common.Reader, ctx auth.Context) {
 	client := ctx.Client
 	options := client.Options()
 

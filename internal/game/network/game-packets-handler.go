@@ -1,16 +1,15 @@
-package game
+package network
 
 import (
-	"l2go-concept/internal/game/crypt"
-	"l2go-concept/internal/game/model"
-	"l2go-concept/internal/game/packets/server"
+	"l2go-concept/internal/common"
+	"l2go-concept/internal/game/network/crypt"
+	"l2go-concept/internal/game/network/server"
 	"l2go-concept/internal/game/storage"
-	"l2go-concept/internal/network"
 	"log"
 )
 
 func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes []byte) {
-	var reader = network.NewReader(bytes)
+	var reader = common.NewReader(bytes)
 
 	switch opcode {
 	case 0x00: // Protocol
@@ -24,24 +23,26 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 		}
 	case 0x08: // Request auth
 		{
-			accountName := reader.ReadString()
-			playOk2 := reader.ReadUInt32()
-			playOk1 := reader.ReadUInt32()
-			loginOk1 := reader.ReadUInt32()
-			loginOk2 := reader.ReadUInt32()
-
-			println(accountName, loginOk1, loginOk2, playOk1, playOk2)
-
-			client.SendPacket(server.WriteCharacterList(make([]model.Character, 0)))
+			RequestCharacterList(client, store, reader)
 			break
 		}
 	case 0x09: // Logout
 		{
-			buffer := network.NewBuffer()
+			buffer := common.NewBuffer()
 			buffer.WriteByte(0x7e)
 			client.SendPacket(buffer)
 			//client.conn.Close()
 			break
+		}
+	case 0x0e: // Create new Character
+		{
+			buffer := common.NewBuffer()
+			RequestCreateCharacter(client, buffer)
+			break
+		}
+	case 0x0b: // Request Create Character
+		{
+			CreateCharacter(client, store, common.NewReader(bytes))
 		}
 	}
 }

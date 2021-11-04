@@ -1,9 +1,11 @@
-package game
+package network
 
 import (
 	"encoding/hex"
+	"fmt"
 	"github.com/panjf2000/gnet"
 	"github.com/panjf2000/gnet/pool/goroutine"
+	"l2go-concept/internal/game"
 	"l2go-concept/internal/game/storage"
 	"log"
 )
@@ -87,5 +89,11 @@ func StartClientServer(store storage.GameStorage) {
 		pool:    p,
 		storage: store,
 	}
-	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:7777", gnet.WithReusePort(true)))
+
+	serverConfig := game.Config.Server
+	hostname := serverConfig.Hostname
+	port := serverConfig.Port
+
+	log.Printf("Server started on address: %s:%d\n", hostname, port)
+	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, fmt.Sprintf("tcp://%s:%d", hostname, port), gnet.WithReusePort(true)))
 }

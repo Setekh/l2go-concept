@@ -73,7 +73,7 @@ func (ctx *Context) CreateAccount(name, password string) {
 }
 
 func CreateStorage() auth.Storage {
-	db, err := gorm.Open(sqlite.Open("login.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("auth.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatalln("Failed db connection!", err)
 	}

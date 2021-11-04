@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -16,9 +17,9 @@ type StatSet struct {
 type L2JCharTemplate struct {
 	XMLName xml.Name `xml:"class"`
 
-	Name    string `xml:"name,attr"`
-	ClassId uint32 `xml:"class_id,attr"`
-	Level   uint32 `xml:"level,attr"`
+	Name      string `xml:"name,attr"`
+	ClassId   uint32 `xml:"id,attr"`
+	BaseLevel uint32 `xml:"baseLevel,attr"`
 
 	Set []StatSet `xml:"set"`
 }
@@ -29,7 +30,7 @@ type List struct {
 }
 
 func main() {
-	fd, _ := os.Open("/Users/vladcazacu/Library/Application Support/JetBrains/GoLand2021.2/scratches/scratch_1.xml")
+	fd, _ := os.Open("C:\\Users\\og_ki\\AppData\\Roaming\\JetBrains\\GoLand2021.2\\scratches\\scratch.xml")
 	bytes, err := ioutil.ReadAll(fd)
 	if err != nil {
 		panic(err)
@@ -38,4 +39,5 @@ func main() {
 	var list = &List{}
 	xml.Unmarshal(bytes, list)
 
+	log.Printf("%+v", list)
 }

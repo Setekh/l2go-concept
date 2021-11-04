@@ -1,7 +1,7 @@
 package main
 
 import (
-	"l2go-concept/internal/game"
+	"l2go-concept/internal/game/network"
 	"l2go-concept/internal/game/storage"
 	"sync"
 )
@@ -25,6 +25,6 @@ func startClientService(store storage.GameStorage) {
 	go func() {
 		defer waitGroup.Done()
 
-		game.StartClientServer(store)
+		network.StartClientServer(store)
 	}()
 }

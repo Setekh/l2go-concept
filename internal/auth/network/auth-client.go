@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/panjf2000/gnet"
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 	"l2go-concept/pkg/auth"
 	"l2go-concept/pkg/auth/crypt"
 	"log"
@@ -61,11 +61,11 @@ func newClient(conn gnet.Conn) *Client {
 	}
 }
 
-func (cl *Client) SendPacketEncoded(buffer *network.Buffer) error {
+func (cl *Client) SendPacketEncoded(buffer *common.Buffer) error {
 	return cl.SendPacket(buffer, true, true)
 }
 
-func (cl *Client) SendPacket(inputBuffer *network.Buffer, doChecksum, doBlowfish bool) error {
+func (cl *Client) SendPacket(inputBuffer *common.Buffer, doChecksum, doBlowfish bool) error {
 	data := inputBuffer.Bytes()
 
 	if doChecksum {
@@ -99,7 +99,7 @@ func (cl *Client) SendPacket(inputBuffer *network.Buffer, doChecksum, doBlowfish
 	length := uint16(len(data) + 2)
 
 	// Put everything together
-	outputBuffer := network.NewBuffer()
+	outputBuffer := common.NewBuffer()
 	outputBuffer.WriteUInt16(length)
 	outputBuffer.Write(data)
 

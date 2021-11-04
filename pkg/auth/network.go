@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/panjf2000/gnet"
-	"l2go-concept/internal/network"
+	"l2go-concept/internal/common"
 	"l2go-concept/pkg/auth/crypt"
 )
 
@@ -21,8 +21,8 @@ type ClientOptions struct {
 }
 
 type Client interface {
-	SendPacketEncoded(buffer *network.Buffer) error
-	SendPacket(buffer *network.Buffer, doChecksum, doBlowfish bool) error
+	SendPacketEncoded(buffer *common.Buffer) error
+	SendPacket(buffer *common.Buffer, doChecksum, doBlowfish bool) error
 	Receive(frame []byte) (opcode byte, data []byte, e error)
 	Options() *ClientOptions
 }
@@ -33,5 +33,5 @@ type Context struct {
 }
 
 type ClientPacket interface {
-	HandlePacket(reader *network.Reader, context Context)
+	HandlePacket(reader *common.Reader, context Context)
 }
