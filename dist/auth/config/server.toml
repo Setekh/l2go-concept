@@ -1,0 +1,8 @@
+# Server configuration
+
+[Server]
+Address = "0.0.0.0"
+Port = 2106
+
+[General]
+AuthPassword = "Pass123!"

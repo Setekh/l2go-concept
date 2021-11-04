@@ -3,6 +3,7 @@ package network
 import (
 	"l2go-concept/internal/auth/model"
 	"l2go-concept/internal/network"
+	"l2go-concept/pkg/auth"
 	"net"
 )
 
@@ -77,6 +78,55 @@ func WriteServerList(lastServer uint8, servers []*model.GameServer) *network.Buf
 			buffer.WriteByte(0x00)
 		}
 	}
+
+	return buffer
+}
+
+const (
+	_NONE = iota
+	SystemError
+	AccountPasswordWrong
+	AccountOrPasswordWrong
+	AccessFailed
+	AccountInUse = 0x07
+)
+
+func LoginFail(reason uint32) *network.Buffer {
+	buffer := network.NewBuffer()
+
+	buffer.WriteByte(0x06)
+	buffer.WriteUInt32(reason)
+	return buffer
+}
+
+func LoginOk(key auth.SessionKey) *network.Buffer {
+	buffer := network.NewBuffer()
+
+	buffer.WriteByte(0x03)
+
+	buffer.WriteUInt32(key.LoginOk1)
+	buffer.WriteUInt32(key.LoginOk2)
+
+	buffer.WriteUInt32(0x00)
+	buffer.WriteUInt32(0x00)
+
+	buffer.WriteUInt32(0x000003ea) // billing type: 1002 Free, x200 paid time, x500 flat rate pre paid, others subscription
+	buffer.WriteUInt32(0x00)       // paid time
+	buffer.WriteUInt32(0x00)
+	//buffer.WriteUInt32(0x02) - mobius??!
+
+	buffer.WriteUInt32(0x00)       // warning mask
+	buffer.Write(make([]byte, 16)) // forbidden servers
+	//buffer.WriteUInt32(0x00) - l2jorg
+	return buffer
+}
+
+func PlayOk(serverId byte, key auth.SessionKey) *network.Buffer {
+	buffer := network.NewBuffer()
+	buffer.WriteByte(0x07)
+	buffer.WriteUInt32(key.PlayOk1)
+	buffer.WriteUInt32(key.PlayOk2)
+	buffer.WriteByte(serverId) // other packs
 
 	return buffer
 }

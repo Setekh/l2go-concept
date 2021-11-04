@@ -2,7 +2,9 @@ package network
 
 import (
 	"encoding/hex"
-	"l2go-concept/pkg/auth"
+	"fmt"
+	auth "l2go-concept/internal/auth"
+	authDef "l2go-concept/pkg/auth"
 	"log"
 
 	"github.com/panjf2000/gnet"
@@ -14,7 +16,7 @@ var clients []*Client
 type clientServer struct {
 	*gnet.EventServer
 	pool    *goroutine.Pool
-	storage auth.Storage
+	storage authDef.Storage
 }
 
 func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
@@ -33,7 +35,7 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 	return nil, gnet.None
 }
 
-func onFrameDecoded(frame []byte, client *Client, storage auth.Storage) {
+func onFrameDecoded(frame []byte, client *Client, storage authDef.Storage) {
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
@@ -80,7 +82,7 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 	return
 }
 
-func StartClientServer(store auth.Storage) {
+func StartClientServer(store authDef.Storage) {
 	p := goroutine.Default()
 	defer p.Release()
 
@@ -88,5 +90,11 @@ func StartClientServer(store auth.Storage) {
 		pool:    p,
 		storage: store,
 	}
-	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, "tcp://:2106", gnet.WithReusePort(true)))
+
+	serverConfig := auth.Config.Server
+	address := serverConfig.Address
+	port := serverConfig.Port
+
+	log.Printf("Server started on address: %s:%d\n", address, port)
+	log.Fatalf("Server failed to start %s", gnet.Serve(clientServer, fmt.Sprintf("tcp://%s:%d", address, port), gnet.WithReusePort(true)))
 }
