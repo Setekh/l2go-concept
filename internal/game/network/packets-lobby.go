@@ -26,86 +26,86 @@ func RequestCharacterList(client *Client, store storage.GameStorage, reader *com
 func WriteCharacterList(client *Client, characters []model.Character) *common.Buffer {
 	buffer := common.NewBuffer()
 
-	buffer.WriteByte(0x13)
-	buffer.WriteUInt32(uint32(len(characters)))
+	buffer.WriteC(0x13)
+	buffer.WriteD(uint32(len(characters)))
 
 	for charId, character := range characters {
-		buffer.WriteL2String(character.Name)
-		buffer.WriteUInt32(uint32(charId))
+		buffer.WriteString(character.Name)
+		buffer.WriteD(uint32(charId))
 
-		buffer.WriteL2String(client.accountName)
-		buffer.WriteUInt32(client.playOk)
+		buffer.WriteString(client.accountName)
+		buffer.WriteD(client.playOk)
 
-		buffer.WriteUInt32(character.ClanId)
-		buffer.WriteUInt32(0x00) // Unk
+		buffer.WriteD(character.ClanId)
+		buffer.WriteD(0x00) // Unk
 
-		buffer.WriteUInt32(character.Sex)
-		buffer.WriteUInt32(character.Race)
+		buffer.WriteD(character.Sex)
+		buffer.WriteD(character.Race)
 
-		buffer.WriteUInt32(character.ClassId)
-		buffer.WriteUInt32(0x01) // Active ?
+		buffer.WriteD(character.ClassId)
+		buffer.WriteD(0x01) // Active ?
 
-		buffer.WriteUInt32(0x00) // X
-		buffer.WriteUInt32(0x00) // Y
-		buffer.WriteUInt32(0x00) // Z
+		buffer.WriteD(0x00) // X
+		buffer.WriteD(0x00) // Y
+		buffer.WriteD(0x00) // Z
 
-		buffer.WriteUInt64(character.CurrentHp)
-		buffer.WriteUInt64(character.CurrentMp)
+		buffer.WriteF(character.CurrentHp)
+		buffer.WriteF(character.CurrentMp)
 
-		buffer.WriteUInt32(character.SkillPoints)
-		buffer.WriteUInt32(character.Experience)
-		buffer.WriteUInt32(character.Level)
+		buffer.WriteD(character.SkillPoints)
+		buffer.WriteD(character.Experience)
+		buffer.WriteD(character.Level)
 
-		buffer.WriteUInt32(character.Karma)
+		buffer.WriteD(character.Karma)
 		for i := 0; i < 9; i++ {
-			buffer.WriteUInt32(0x00) // Unk
+			buffer.WriteD(0x00) // Unk
 		}
 
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_UNDER)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_REAR)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LEAR)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_NECK)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_RFINGER)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LFINGER)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_HEAD)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_RHAND)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LHAND)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_GLOVES)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_CHEST)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LEGS)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_FEET)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_BACK)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LRHAND)
-		buffer.WriteUInt32(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_HAIR)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_UNDER)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_REAR)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LEAR)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_NECK)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_RFINGER)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LFINGER)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_HEAD)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_RHAND)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LHAND)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_GLOVES)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_CHEST)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LEGS)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_FEET)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_BACK)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_LRHAND)
+		buffer.WriteD(0x00) // PaperdollObjectId(Inventory.PAPERDOLL_HAIR)
 
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_UNDER)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_REAR)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LEAR)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_NECK)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_RFINGER)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LFINGER)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_HEAD)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_RHAND)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LHAND)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_GLOVES)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_CHEST)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LEGS)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_FEET)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_BACK)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LRHAND)
-		buffer.WriteUInt32(0x00) // PaperdollItemId(Inventory.PAPERDOLL_HAIR)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_UNDER)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_REAR)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LEAR)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_NECK)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_RFINGER)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LFINGER)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_HEAD)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_RHAND)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LHAND)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_GLOVES)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_CHEST)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LEGS)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_FEET)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_BACK)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_LRHAND)
+		buffer.WriteD(0x00) // PaperdollItemId(Inventory.PAPERDOLL_HAIR)
 
-		buffer.WriteUInt32(character.Hair)
-		buffer.WriteUInt32(character.HairColor)
-		buffer.WriteUInt32(character.Face)
+		buffer.WriteD(character.Hair)
+		buffer.WriteD(character.HairColor)
+		buffer.WriteD(character.Face)
 
-		buffer.WriteUInt64(character.MaxHp)
-		buffer.WriteUInt64(character.MaxMp)
+		buffer.WriteF(character.MaxHp)
+		buffer.WriteF(character.MaxMp)
 
-		buffer.WriteInt32(0x00) // days before delete & access level, -1 == banned
-		buffer.WriteUInt32(character.ClassId)
-		buffer.WriteUInt32(0x00) // Is active character 0x01 for active
-		buffer.WriteByte(127)    // Weapon enchant, min 127?
+		buffer.WriteSD(0x00) // days before delete & access level, -1 == banned
+		buffer.WriteD(character.ClassId)
+		buffer.WriteD(0x00) // Is active character 0x01 for active
+		buffer.WriteC(127)  // Weapon enchant, min 127?
 	}
 
 	return buffer

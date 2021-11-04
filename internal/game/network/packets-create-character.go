@@ -8,7 +8,7 @@ import (
 )
 
 func RequestCreateCharacter(client *Client, buffer *common.Buffer) {
-	buffer.WriteByte(0x17)
+	buffer.WriteC(0x17)
 	client.SendPacket(buffer)
 }
 
@@ -63,8 +63,8 @@ func CreateCharacter(client *Client, store storage.GameStorage, buff *common.Rea
 }
 
 func characterCreateOk(buffer *common.Buffer) {
-	buffer.WriteByte(0x19)
-	buffer.WriteUInt32(0x01)
+	buffer.WriteC(0x19)
+	buffer.WriteD(0x01)
 }
 
 const (
@@ -76,6 +76,6 @@ const (
 )
 
 func characterCreateFail(reason uint32, buffer *common.Buffer) {
-	buffer.WriteByte(0x1A)
-	buffer.WriteUInt32(reason)
+	buffer.WriteC(0x1A)
+	buffer.WriteD(reason)
 }

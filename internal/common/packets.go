@@ -15,19 +15,23 @@ func NewBuffer() *Buffer {
 	return &Buffer{}
 }
 
-func (b *Buffer) WriteUInt64(value float64) {
+func (b *Buffer) WriteC(value byte) {
+	b.WriteByte(value)
+}
+
+func (b *Buffer) WriteF(value float64) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
-func (b *Buffer) WriteUInt32(value uint32) {
+func (b *Buffer) WriteD(value uint32) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
-func (b *Buffer) WriteInt32(value int) {
+func (b *Buffer) WriteSD(value int) {
 	binary.Write(b, binary.LittleEndian, uint32(value))
 }
 
-func (b *Buffer) WriteUInt16(value uint16) {
+func (b *Buffer) WriteH(value uint16) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
@@ -43,7 +47,11 @@ func (b *Buffer) WriteFloat32(value float32) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
-func (b *Buffer) WriteL2String(value string) {
+func (b *Buffer) WriteBytes(value []byte) {
+	b.Write(value)
+}
+
+func (b *Buffer) WriteString(value string) {
 	for i := 0; i < len(value); i++ {
 		char := value[i]
 		binary.Write(b, binary.LittleEndian, uint16(char))

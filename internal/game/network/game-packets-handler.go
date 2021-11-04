@@ -29,7 +29,7 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 	case 0x09: // Logout
 		{
 			buffer := common.NewBuffer()
-			buffer.WriteByte(0x7e)
+			buffer.WriteC(0x7e)
 			client.SendPacket(buffer)
 			//client.conn.Close()
 			break

@@ -44,7 +44,7 @@ func (cl *Client) SendPacket(srcBuff *common.Buffer) error {
 
 	// Put everything together
 	buffer := common.NewBuffer()
-	buffer.WriteUInt16(length)
+	buffer.WriteH(length)
 	buffer.Write(data)
 
 	bytes := buffer.Bytes()

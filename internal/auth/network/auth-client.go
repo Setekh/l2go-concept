@@ -100,7 +100,7 @@ func (cl *Client) SendPacket(inputBuffer *common.Buffer, doChecksum, doBlowfish 
 
 	// Put everything together
 	outputBuffer := common.NewBuffer()
-	outputBuffer.WriteUInt16(length)
+	outputBuffer.WriteH(length)
 	outputBuffer.Write(data)
 
 	bytes := outputBuffer.Bytes()
