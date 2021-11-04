@@ -15,7 +15,7 @@ import (
 type RequestGGAuth struct{}
 
 func (p *RequestGGAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
-	var sessionId = buff.ReadUInt32()
+	var sessionId = buff.ReadD()
 
 	options := ctx.Client.Options()
 	log.Printf("GG trys to authenticate! sessionId %d == %d\n", sessionId, options.SessionId)
@@ -107,8 +107,8 @@ func (p *RequestPlayServer) HandlePacket(buff *common.Reader, ctx auth.Context) 
 	client := ctx.Client
 	options := client.Options()
 
-	loginOK1 := buff.ReadUInt32()
-	loginOK2 := buff.ReadUInt32()
+	loginOK1 := buff.ReadD()
+	loginOK2 := buff.ReadD()
 	serverId, _ := buff.ReadByte()
 
 	println("Received login oks", loginOK1, loginOK2, "wants to join", serverId)

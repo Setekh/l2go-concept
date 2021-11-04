@@ -6,17 +6,18 @@ import (
 	"fmt"
 	"github.com/panjf2000/gnet"
 	"l2go-concept/internal/common"
+	"l2go-concept/internal/game/model"
 	"l2go-concept/internal/game/network/crypt"
 	"log"
 )
 
 type Client struct {
-	sessionId    uint64
 	cryptEnabled bool
 	crypt        crypt.Crypt
 	conn         gnet.Conn
-	accountName  string
 	playOk       uint32
+	accountName  string
+	player       *model.Character
 }
 
 func newClient(conn gnet.Conn) *Client {
@@ -89,4 +90,8 @@ func (cl *Client) Receive(frame []byte) (opcode byte, data []byte, e error) {
 	data = data[1:]
 	e = nil
 	return
+}
+
+func (cl *Client) Close() {
+	cl.conn.Close()
 }

@@ -8,10 +8,10 @@ import (
 
 func RequestCharacterList(client *Client, store storage.GameStorage, reader *common.Reader) {
 	accountName := reader.ReadString()
-	playOk2 := reader.ReadUInt32()
-	playOk1 := reader.ReadUInt32()
-	loginOk1 := reader.ReadUInt32()
-	loginOk2 := reader.ReadUInt32()
+	playOk2 := reader.ReadD()
+	playOk1 := reader.ReadD()
+	loginOk1 := reader.ReadD()
+	loginOk2 := reader.ReadD()
 
 	println(accountName, loginOk1, loginOk2, playOk1, playOk2)
 
@@ -29,11 +29,18 @@ func WriteCharacterList(client *Client, characters []model.Character) *common.Bu
 	buffer.WriteC(0x13)
 	buffer.WriteD(uint32(len(characters)))
 
+	var lastTime = characters[0].LastAccessed
+	var lastActiveId = 1
 	for charId, character := range characters {
-		buffer.WriteString(character.Name)
-		buffer.WriteD(uint32(charId))
+		if character.LastAccessed.After(lastTime) {
+			lastTime = character.LastAccessed
+			lastActiveId = charId + 1
+		}
 
-		buffer.WriteString(client.accountName)
+		buffer.WriteS(character.Name)
+		buffer.WriteD(uint32(charId + 1)) // Todo this should be a world entity value
+
+		buffer.WriteS(client.accountName)
 		buffer.WriteD(client.playOk)
 
 		buffer.WriteD(character.ClanId)
@@ -102,11 +109,68 @@ func WriteCharacterList(client *Client, characters []model.Character) *common.Bu
 		buffer.WriteF(character.MaxHp)
 		buffer.WriteF(character.MaxMp)
 
-		buffer.WriteSD(0x00) // days before delete & access level, -1 == banned
+		buffer.WriteSD(0x00) // TODO days before delete & access level, -1 == banned
 		buffer.WriteD(character.ClassId)
-		buffer.WriteD(0x00) // Is active character 0x01 for active
-		buffer.WriteC(127)  // Weapon enchant, min 127?
+		buffer.WriteD(uint32(lastActiveId)) // Is active character 0x01 for active
+		buffer.WriteC(127)                  // Weapon enchant, min 127?
 	}
 
 	return buffer
+}
+
+func SelectCharacter(sessionId uint32, character *model.Character, buffer *common.Buffer) {
+	buffer.WriteC(0x15)
+	buffer.WriteS(character.Name)
+	buffer.WriteD(character.EntityId)
+	buffer.WriteS(character.Title)
+	buffer.WriteD(sessionId)
+	buffer.WriteD(character.ClanId)
+	buffer.WriteD(0x00) // Unk
+	buffer.WriteD(character.Sex)
+	buffer.WriteD(character.Race)
+	buffer.WriteD(character.ClassId)
+	buffer.WriteD(0x01) // Active?
+	buffer.WriteSD(character.X)
+	buffer.WriteSD(character.Y)
+	buffer.WriteSD(character.Z)
+
+	buffer.WriteF(character.CurrentHp)
+	buffer.WriteF(character.CurrentMp)
+	buffer.WriteD(character.SkillPoints)
+	buffer.WriteD(character.Experience)
+	buffer.WriteD(character.Level)
+	buffer.WriteD(character.Karma) // thx evill33t
+	buffer.WriteD(0x0)             // ?
+	buffer.WriteD(character.INT)
+	buffer.WriteD(character.STR)
+	buffer.WriteD(character.CON)
+	buffer.WriteD(character.MEN)
+	buffer.WriteD(character.DEX)
+	buffer.WriteD(character.WIT)
+
+	buffer.WriteBytes(make([]byte, 30))
+
+	buffer.WriteD(0x00) // C3 work
+	buffer.WriteD(0x00) // C3 work
+
+	// extra info
+	buffer.WriteD(0x123) // TODO in-game time
+
+	buffer.WriteD(0x00) //
+
+	buffer.WriteD(0x00) // c3
+
+	buffer.WriteD(0x00) // c3 InspectorBin
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+
+	buffer.WriteD(0x00) // c3 InspectorBin for 528 client
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
+	buffer.WriteD(0x00) // c3
 }

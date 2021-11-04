@@ -1,6 +1,6 @@
 package common
 
-// TODO make a pool of buffers
+// TODO make a pool of buffers!!
 
 import (
 	"bytes"
@@ -27,8 +27,8 @@ func (b *Buffer) WriteD(value uint32) {
 	binary.Write(b, binary.LittleEndian, value)
 }
 
-func (b *Buffer) WriteSD(value int) {
-	binary.Write(b, binary.LittleEndian, uint32(value))
+func (b *Buffer) WriteSD(value int32) {
+	binary.Write(b, binary.LittleEndian, value)
 }
 
 func (b *Buffer) WriteH(value uint16) {
@@ -51,7 +51,7 @@ func (b *Buffer) WriteBytes(value []byte) {
 	b.Write(value)
 }
 
-func (b *Buffer) WriteString(value string) {
+func (b *Buffer) WriteS(value string) {
 	for i := 0; i < len(value); i++ {
 		char := value[i]
 		binary.Write(b, binary.LittleEndian, uint16(char))
@@ -77,7 +77,7 @@ func (r *Reader) ReadBytes(number int) []byte {
 	return buffer
 }
 
-func (r *Reader) ReadUInt64() uint64 {
+func (r *Reader) ReadF() uint64 {
 	var result uint64
 
 	buffer := make([]byte, 8)
@@ -92,7 +92,7 @@ func (r *Reader) ReadUInt64() uint64 {
 	return result
 }
 
-func (r *Reader) ReadUInt32() uint32 {
+func (r *Reader) ReadD() uint32 {
 	var result uint32
 
 	buffer := make([]byte, 4)
@@ -108,7 +108,7 @@ func (r *Reader) ReadUInt32() uint32 {
 	return result
 }
 
-func (r *Reader) ReadUInt16() uint16 {
+func (r *Reader) ReadH() uint16 {
 	var result uint16
 
 	buffer := make([]byte, 2)

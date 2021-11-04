@@ -68,7 +68,7 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 
 	var index = -1
 	for i, c := range clients {
-		if c.sessionId == client.sessionId {
+		if c.playOk == client.playOk {
 			index = i
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"l2go-concept/internal/game/network/server"
 	"l2go-concept/internal/game/storage"
 	"log"
+	"time"
 )
 
 func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes []byte) {
@@ -14,7 +15,7 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 	switch opcode {
 	case 0x00: // Protocol
 		{
-			var protocolVersion = reader.ReadUInt32()
+			var protocolVersion = reader.ReadD()
 			log.Printf("Client is with protocol version %d\n", protocolVersion)
 
 			client.SendPacket(server.WriteKeyPacket(crypt.GetKey()))
@@ -43,6 +44,31 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 	case 0x0b: // Request Create Character
 		{
 			CreateCharacter(client, store, common.NewReader(bytes))
+			break
+		}
+	case 0x0d: // Character selected
+		{
+			slot := reader.ReadD()
+			var character = store.LoadCharacter(client.accountName, slot)
+			if character == nil || character.AccessLevel < 0 {
+				client.Close()
+				return
+			}
+
+			client.player = character
+			client.player.EntityId = slot + 1 // TODO Please no
+			client.player.LastAccessed = time.Now()
+			store.SaveCharacter(client.player)
+
+			buffer := common.NewBuffer()
+			SelectCharacter(client.playOk, client.player, buffer)
+			client.SendPacket(buffer)
+			break
+		}
+	case 0x03:
+		{
+			client.SendPacket(UserInfo(client))
+			break
 		}
 	}
 }

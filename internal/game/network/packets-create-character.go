@@ -4,7 +4,6 @@ import (
 	"l2go-concept/internal/common"
 	"l2go-concept/internal/game/model"
 	"l2go-concept/internal/game/storage"
-	"log"
 )
 
 func RequestCreateCharacter(client *Client, buffer *common.Buffer) {
@@ -14,22 +13,30 @@ func RequestCreateCharacter(client *Client, buffer *common.Buffer) {
 
 func CreateCharacter(client *Client, store storage.GameStorage, buff *common.Reader) {
 	name := buff.ReadString()
-	race := buff.ReadUInt32()
-	sex := buff.ReadUInt32()
-	classId := buff.ReadUInt32()
 
-	buff.ReadUInt32() // int
-	buff.ReadUInt32() // str
-	buff.ReadUInt32() // con
-	buff.ReadUInt32() // men
-	buff.ReadUInt32() // dex
-	buff.ReadUInt32() // wit
+	nameAlreadyExists := store.CheckNameExists(name)
+	if nameAlreadyExists {
+		buffer := common.NewBuffer()
+		characterCreateFail(REASON_NAME_ALREADY_EXISTS, buffer)
+		client.SendPacket(buffer)
+		return
+	}
 
-	hairStyle := buff.ReadUInt32()
-	hairColor := buff.ReadUInt32()
-	face := buff.ReadUInt32()
+	race := buff.ReadD()
+	sex := buff.ReadD()
+	classId := buff.ReadD()
 
-	log.Printf("Request to create %s of race %d of sex %d of classId %d with hair style %d, hair color %d and face %d", name, race, sex, classId, hairStyle, hairColor, face)
+	buff.ReadD() // int
+	buff.ReadD() // str
+	buff.ReadD() // con
+	buff.ReadD() // men
+	buff.ReadD() // dex
+	buff.ReadD() // wit
+
+	hairStyle := buff.ReadD()
+	hairColor := buff.ReadD()
+	face := buff.ReadD()
+
 	character := &model.Character{
 		EntityId:    0,
 		AccountName: client.accountName,
