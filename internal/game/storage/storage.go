@@ -73,7 +73,14 @@ func (store *context) SaveCharacter(player *model.Character) {
 
 func (store *context) LoadCharacter(accountName string, slot uint32) *model.Character {
 	var list = store.LoadAllCharacters(accountName)
-	return &list[slot]
+	player := &list[slot]
+	player.Shortcuts = []model.UserShortcut{
+		{Slot: 0, Page: 0, Type: 3, Id: 2, Level: -1},  // Attack
+		{Slot: 3, Page: 0, Type: 3, Id: 5, Level: -1},  // Take
+		{Slot: 10, Page: 0, Type: 3, Id: 0, Level: -1}, // Sit
+	}
+
+	return player
 }
 
 func (store *context) CheckNameExists(name string) bool {

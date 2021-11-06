@@ -21,6 +21,22 @@ type Stats struct {
 	WIT uint32
 }
 
+const (
+	TYPE_ITEM   = 1
+	TYPE_SKILL  = 2
+	TYPE_ACTION = 3
+	TYPE_MACRO  = 4
+	TYPE_RECIPE = 5
+)
+
+type UserShortcut struct {
+	Id    uint32
+	Level int
+	Slot  uint32
+	Page  uint32
+	Type  uint32
+}
+
 type Character struct {
 	gorm.Model
 
@@ -53,4 +69,5 @@ type Character struct {
 	Hero         bool
 	PvpKills     uint32
 	PkKills      uint32
+	Shortcuts    []UserShortcut `gorm:"-"`
 }

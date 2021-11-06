@@ -1,6 +1,10 @@
 package network
 
-import "l2go-concept/internal/common"
+import (
+	"l2go-concept/internal/common"
+	"l2go-concept/internal/game"
+	"l2go-concept/internal/game/model"
+)
 
 func UserInfo(client *Client) *common.Buffer {
 	player := client.player
@@ -188,5 +192,149 @@ func UserInfo(client *Client) *common.Buffer {
 	buffer.WriteD(0x00)     // buffer.WriteD(player.FishZ)                // fishing z
 	buffer.WriteD(0xFFFFFF) // buffer.WriteD(player.Appearance().getNameColor)
 
+	return buffer
+}
+
+func UserShortcutInit(character *model.Character) *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x45)
+	buffer.WriteD(uint32(len(character.Shortcuts)))
+
+	for _, shortcut := range character.Shortcuts {
+		buffer.WriteD(shortcut.Type)
+		buffer.WriteD(shortcut.Slot + (shortcut.Page * 12))
+		buffer.WriteD(shortcut.Id)
+		if shortcut.Level > -1 {
+			buffer.WriteD(uint32(shortcut.Level)) // Get skill level with shortcut id!
+		}
+		buffer.WriteD(0x01)
+	}
+	return buffer
+}
+
+func UserItemList(_ *model.Character, showWindow bool) *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x1B)
+
+	if showWindow {
+		buffer.WriteH(0x01)
+	} else {
+		buffer.WriteH(0x00)
+	}
+
+	buffer.WriteH(0x00) // Length of the items
+
+	//for (ItemInstance temp : _items)
+	//{
+	//	buffer.WriteH(temp.getItem().getType1());
+	//	buffer.WriteD(temp.getObjectId());
+	//	buffer.WriteD(temp.getItemId());
+	//	buffer.WriteD(temp.getCount());
+	//	buffer.WriteH(temp.getItem().getType2());
+	//	buffer.WriteH(temp.getCustomType1());
+	//	buffer.WriteH(temp.isEquipped() ? 0x01 : 0x00);
+	//	buffer.WriteD(temp.getItem().getBodyPart());
+	//	buffer.WriteH(temp.getEnchantLevel());
+	//	// race tickets
+	//	buffer.WriteH(temp.getCustomType2());
+	//}
+	return buffer
+}
+
+func ClientSetTime(tc game.TimeController) *common.Buffer {
+	buffer := common.NewBuffer()
+
+	buffer.WriteC(0xEC)
+	buffer.WriteD(uint32(tc.GetGameTime()))
+	buffer.WriteD(6) // constant to match the server time( this determines the speed of the client clock)
+
+	return buffer
+}
+
+func SkillList(skills []model.Skill) *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x58)
+	buffer.WriteD(uint32(len(skills)))
+
+	for _, skill := range skills {
+		if skill.Passive {
+			buffer.WriteD(0x01)
+		} else {
+			buffer.WriteD(0x00)
+		}
+
+		buffer.WriteD(skill.Level)
+		buffer.WriteD(skill.Id)
+	}
+	return buffer
+}
+
+func ValidateLocation(character *model.Character) *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x61)
+	buffer.WriteD(character.EntityId)
+	buffer.WriteSD(character.X)
+	buffer.WriteSD(character.Y)
+	buffer.WriteSD(character.Z)
+	buffer.WriteSD(character.Heading)
+	return buffer
+}
+
+func FriendList() *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0xFA)
+
+	// TODO actually implement it
+	return buffer
+}
+
+func QuestList() *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x80)
+	buffer.WriteH(0x00)
+
+	// TODO actually implement it
+	return buffer
+}
+
+func HennaInfo(_ *model.Character) *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0xE4)
+
+	buffer.WriteC(0x00) // equip INT
+	buffer.WriteC(0x00) // equip STR
+	buffer.WriteC(0x00) // equip CON
+	buffer.WriteC(0x00) // equip MEM
+	buffer.WriteC(0x00) // equip DEX
+	buffer.WriteC(0x00) // equip WIT
+
+	// Henna slots
+	//int classId = _player.getClassId().level();
+	//if (classId == 1)
+	//{
+	//	buffer.WriteD(2);
+	//}
+	//else if (classId > 1)
+	//{
+	//	buffer.WriteD(3);
+	//}
+	//else
+	//{
+	buffer.WriteD(0)
+	//}
+
+	buffer.WriteD(0x00) // size
+	//for (int i = 0; i < _count; i++)
+	//{
+	//	buffer.WriteD(_hennas[i].getSymbolId());
+	//	buffer.WriteD(_hennas[i].canBeUsedBy(_player) ? _hennas[i].getSymbolId() : 0);
+	//}
+
+	return buffer
+}
+
+func ActionFailed() *common.Buffer {
+	buffer := common.NewBuffer()
+	buffer.WriteC(0x25)
 	return buffer
 }

@@ -39,5 +39,9 @@ func main() {
 	var list = &List{}
 	xml.Unmarshal(bytes, list)
 
+	for _, t := range list.List {
+		log.Printf("%+v", t)
+	}
+
 	log.Printf("%+v", list)
 }

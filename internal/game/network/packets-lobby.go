@@ -118,7 +118,7 @@ func WriteCharacterList(client *Client, characters []model.Character) *common.Bu
 	return buffer
 }
 
-func SelectCharacter(sessionId uint32, character *model.Character, buffer *common.Buffer) {
+func SelectCharacter(sessionId uint32, gameTime int, character *model.Character, buffer *common.Buffer) {
 	buffer.WriteC(0x15)
 	buffer.WriteS(character.Name)
 	buffer.WriteD(character.EntityId)
@@ -154,7 +154,7 @@ func SelectCharacter(sessionId uint32, character *model.Character, buffer *commo
 	buffer.WriteD(0x00) // C3 work
 
 	// extra info
-	buffer.WriteD(0x123) // TODO in-game time
+	buffer.WriteD(uint32(gameTime))
 
 	buffer.WriteD(0x00) //
 

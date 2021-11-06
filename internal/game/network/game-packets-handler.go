@@ -2,14 +2,17 @@ package network
 
 import (
 	"l2go-concept/internal/common"
+	"l2go-concept/internal/game"
+	"l2go-concept/internal/game/model"
 	"l2go-concept/internal/game/network/crypt"
 	"l2go-concept/internal/game/network/server"
-	"l2go-concept/internal/game/storage"
 	"log"
 	"time"
 )
 
-func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes []byte) {
+func HandlePacket(client *Client, dm game.DependencyManager, opcode uint, bytes []byte) {
+	store := dm.GetStorage()
+
 	var reader = common.NewReader(bytes)
 
 	switch opcode {
@@ -33,6 +36,13 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 			buffer.WriteC(0x7e)
 			client.SendPacket(buffer)
 			//client.conn.Close()
+			break
+		}
+	case 0x46: // Restart
+		{
+			buffer := common.NewBuffer()
+			buffer.WriteC(0x5F)
+			buffer.WriteD(0x01) // 1 = success
 			break
 		}
 	case 0x0e: // Create new Character
@@ -61,13 +71,43 @@ func HandlePacket(client *Client, store storage.GameStorage, opcode uint, bytes 
 			store.SaveCharacter(client.player)
 
 			buffer := common.NewBuffer()
-			SelectCharacter(client.playOk, client.player, buffer)
+			SelectCharacter(client.playOk, dm.GetTimeController().GetGameTime(), client.player, buffer)
 			client.SendPacket(buffer)
 			break
 		}
 	case 0x03:
 		{
+			list := []model.Skill{
+				{
+					Id:      3,
+					Level:   9,
+					Passive: false,
+				},
+			}
+
+			client.SendPacket(SkillList(list))
+			client.SendPacket(FriendList())
+			client.SendPacket(QuestList())
+			client.SendPacket(HennaInfo(client.player))
+			client.SendPacket(ClientSetTime(dm.GetTimeController()))
+			client.SendPacket(UserShortcutInit(client.player))
+			client.SendPacket(UserItemList(client.player, false))
+			client.SendPacket(ValidateLocation(client.player))
 			client.SendPacket(UserInfo(client))
+			client.SendPacket(ActionFailed())
+			break
+		}
+	case 0x3f:
+		{
+			list := []model.Skill{
+				{
+					Id:      3,
+					Level:   9,
+					Passive: false,
+				},
+			}
+
+			client.SendPacket(SkillList(list))
 			break
 		}
 	}

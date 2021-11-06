@@ -6,7 +6,6 @@ import (
 	"github.com/panjf2000/gnet"
 	"github.com/panjf2000/gnet/pool/goroutine"
 	"l2go-concept/internal/game"
-	"l2go-concept/internal/game/storage"
 	"log"
 )
 
@@ -14,8 +13,8 @@ var clients []*Client
 
 type clientServer struct {
 	*gnet.EventServer
-	pool    *goroutine.Pool
-	storage storage.GameStorage
+	pool              *goroutine.Pool
+	dependencyManager game.DependencyManager
 }
 
 func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
@@ -28,13 +27,13 @@ func (es *clientServer) React(frame []byte, c gnet.Conn) (out []byte, action gne
 
 	// Handle this in another goroutine
 	_ = es.pool.Submit(func() {
-		onFrameDecoded(frame, client, es.storage)
+		onFrameDecoded(frame, client, es.dependencyManager)
 	})
 
 	return nil, gnet.None
 }
 
-func onFrameDecoded(frame []byte, client *Client, storage storage.GameStorage) {
+func onFrameDecoded(frame []byte, client *Client, dm game.DependencyManager) {
 	var hexDump = hex.Dump(frame)
 	log.Printf("React\n%s", hexDump)
 
@@ -45,7 +44,7 @@ func onFrameDecoded(frame []byte, client *Client, storage storage.GameStorage) {
 
 	log.Printf("Recieved code %d with decoded %s\n", code, hex.Dump(bytes))
 
-	HandlePacket(client, storage, uint(code), bytes)
+	HandlePacket(client, dm, uint(code), bytes)
 }
 
 func (es *clientServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
@@ -81,13 +80,13 @@ func (es *clientServer) OnClosed(conn gnet.Conn, err error) (action gnet.Action)
 	return
 }
 
-func StartClientServer(store storage.GameStorage) {
+func StartClientServer(dependencyManager game.DependencyManager) {
 	p := goroutine.Default()
 	defer p.Release()
 
 	var clientServer = &clientServer{
-		pool:    p,
-		storage: store,
+		pool:              p,
+		dependencyManager: dependencyManager,
 	}
 
 	serverConfig := game.Config.Server
