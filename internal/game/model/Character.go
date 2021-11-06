@@ -70,4 +70,5 @@ type Character struct {
 	PvpKills     uint32
 	PkKills      uint32
 	Shortcuts    []UserShortcut `gorm:"-"`
+	Destination  *Location      `gorm:"-"`
 }

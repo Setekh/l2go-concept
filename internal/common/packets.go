@@ -108,6 +108,22 @@ func (r *Reader) ReadD() uint32 {
 	return result
 }
 
+func (r *Reader) ReadSD() int32 {
+	var result int32
+
+	buffer := make([]byte, 4)
+	n, _ := r.Read(buffer)
+	if n < 4 {
+		return 0
+	}
+
+	buf := bytes.NewBuffer(buffer)
+
+	binary.Read(buf, binary.LittleEndian, &result)
+
+	return result
+}
+
 func (r *Reader) ReadH() uint16 {
 	var result uint16
 

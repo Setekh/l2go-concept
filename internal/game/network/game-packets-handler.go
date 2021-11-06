@@ -114,5 +114,10 @@ func HandlePacket(client *Client, dm game.DependencyManager, opcode uint, bytes 
 			client.SendPacket(SkillList(list))
 			break
 		}
+	case 0x01: // RequestMove
+		{
+			RequestMove(client, reader)
+			break
+		}
 	}
 }

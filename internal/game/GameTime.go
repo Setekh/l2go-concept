@@ -56,7 +56,7 @@ func (tc *timeController) Start() {
 		for tc.isRunning {
 			nextTickTime := ((currentTimeMillis() / MILLIS_IN_TICK) * MILLIS_IN_TICK) + 100
 
-			// TODO process here?
+			// TODO process here? & set night time
 
 			sleepTime := nextTickTime - currentTimeMillis()
 			time.Sleep(time.Duration(sleepTime) * time.Millisecond)
