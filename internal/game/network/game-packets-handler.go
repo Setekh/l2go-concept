@@ -43,6 +43,10 @@ func HandlePacket(client *Client, dm game.DependencyManager, opcode uint, bytes 
 			buffer := common.NewBuffer()
 			buffer.WriteC(0x5F)
 			buffer.WriteD(0x01) // 1 = success
+			client.SendPacket(buffer)
+
+			characters := store.LoadAllCharacters(client.accountName)
+			client.SendPacket(WriteCharacterList(client, characters))
 			break
 		}
 	case 0x0e: // Create new Character

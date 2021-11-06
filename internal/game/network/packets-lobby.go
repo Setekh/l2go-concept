@@ -19,7 +19,6 @@ func RequestCharacterList(client *Client, store storage.GameStorage, reader *com
 	client.playOk = playOk1
 
 	characters := store.LoadAllCharacters(accountName)
-
 	client.SendPacket(WriteCharacterList(client, characters))
 }
 
