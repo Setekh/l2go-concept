@@ -12,7 +12,7 @@ type Location struct {
 	Heading int32
 }
 
-type Stats struct {
+type CoreStats struct {
 	INT uint32
 	STR uint32
 	CON uint32
@@ -21,12 +21,19 @@ type Stats struct {
 	WIT uint32
 }
 
+type HealthManaStats struct {
+	CurrentHp float64
+	MaxHp     float64 `gorm:"-"`
+	CurrentMp float64
+	MaxMp     float64 `gorm:"-"`
+}
+
 const (
-	TYPE_ITEM   = 1
-	TYPE_SKILL  = 2
-	TYPE_ACTION = 3
-	TYPE_MACRO  = 4
-	TYPE_RECIPE = 5
+	ShortcutTypeItem   = 1
+	ShortcutTypeSkill  = 2
+	ShortcutTypeAction = 3
+	ShortcutTypeMacro  = 4
+	ShortcutTypeRecipe = 5
 )
 
 type UserShortcut struct {
@@ -35,6 +42,15 @@ type UserShortcut struct {
 	Slot  uint32
 	Page  uint32
 	Type  uint32
+}
+
+type Npc struct {
+	EntityId uint32
+	Name     string
+	Title    string
+	Level    uint32
+	Location
+	CoreStats
 }
 
 type Character struct {
@@ -46,22 +62,19 @@ type Character struct {
 	Title       string
 	Level       uint32
 	Location
-	Stats        `gorm:"-"`
-	SkillPoints  uint32
-	Experience   uint32
-	ClassId      uint32
-	Sex          uint32
-	Race         uint32
-	Face         uint32
-	Hair         uint32
-	HairColor    uint32
-	ClanId       uint32
-	Karma        uint32
-	DeleteTime   uint32
-	CurrentHp    float64
-	MaxHp        float64 `gorm:"-"`
-	CurrentMp    float64
-	MaxMp        float64 `gorm:"-"`
+	CoreStats   `gorm:"-"`
+	SkillPoints uint32
+	Experience  uint32
+	ClassId     uint32
+	Sex         uint32
+	Race        uint32
+	Face        uint32
+	Hair        uint32
+	HairColor   uint32
+	ClanId      uint32
+	Karma       uint32
+	DeleteTime  uint32
+	HealthManaStats
 	AccessLevel  uint32
 	LastAccessed time.Time
 	MaxCp        uint32 `gorm:"-"`

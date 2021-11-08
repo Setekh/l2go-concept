@@ -45,16 +45,18 @@ func (c *CharacterList) WritePacket(buffer *common.Buffer, _ ...interface{}) {
 	buffer.WriteC(0x13)
 	buffer.WriteD(uint32(len(characters)))
 
-	var lastTime = characters[0].LastAccessed
-	var lastActiveId = 1
+	var lastTime = time.UnixMilli(0)
+	var lastActiveId uint32 = 1
 	for charId, character := range characters {
 		if character.LastAccessed.After(lastTime) {
 			lastTime = character.LastAccessed
-			lastActiveId = charId + 1
+			lastActiveId = uint32(charId + 1)
 		}
 
+		character.EntityId = uint32(charId + 1) // Todo this should be a world entity value
+
 		buffer.WriteS(character.Name)
-		buffer.WriteD(uint32(charId + 1)) // Todo this should be a world entity value
+		buffer.WriteD(character.EntityId)
 
 		buffer.WriteS(accountName)
 		buffer.WriteD(sessionId)
@@ -127,8 +129,13 @@ func (c *CharacterList) WritePacket(buffer *common.Buffer, _ ...interface{}) {
 
 		buffer.WriteSD(0x00) // TODO days before delete & access level, -1 == banned
 		buffer.WriteD(character.ClassId)
-		buffer.WriteD(uint32(lastActiveId)) // Is active character 0x01 for active
-		buffer.WriteC(127)                  // Weapon enchant, min 127?
+
+		if character.EntityId == lastActiveId {
+			buffer.WriteD(lastActiveId) // Is active character 0x01 for active
+		} else {
+			buffer.WriteD(0x00)
+		}
+		buffer.WriteC(127) // Weapon enchant, min 127?
 	}
 }
 

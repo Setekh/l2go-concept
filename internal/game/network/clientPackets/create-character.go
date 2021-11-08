@@ -63,10 +63,12 @@ func (r *RequestCreateCharacter) ReadPacket(client client.L2Client, dm game.Depe
 		Face:        face,
 		Hair:        hairStyle,
 		HairColor:   hairColor,
-		CurrentHp:   1000,
-		MaxHp:       1200,
-		CurrentMp:   500,
-		MaxMp:       500,
+		HealthManaStats: model.HealthManaStats{
+			CurrentHp: 80,
+			MaxHp:     80,
+			CurrentMp: 60,
+			MaxMp:     60,
+		},
 	}
 
 	store.StoreNewCharacter(character)
