@@ -104,8 +104,8 @@ func UserInfo(client *Client) *common.Buffer {
 	buffer.WriteD(600) // _flyRunSpd
 	buffer.WriteD(400) // _flyWalkSpd
 
-	buffer.WriteF(0.18) // run speed multiplier
-	buffer.WriteF(0.18) // attack speed multiplier
+	buffer.WriteF(321 / 123) // run speed multiplier
+	buffer.WriteF(1.18)      // attack speed multiplier
 
 	buffer.WriteF(8.0)  // CollisionRadius
 	buffer.WriteF(24.0) // CollisionHeight

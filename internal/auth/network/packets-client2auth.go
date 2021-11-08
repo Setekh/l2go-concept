@@ -6,7 +6,7 @@ import (
 	"l2go-concept/internal/auth/model"
 	"l2go-concept/internal/auth/storage"
 	"l2go-concept/internal/common"
-	"l2go-concept/pkg/auth"
+	"l2go-concept/pkg/auth/client"
 	"log"
 	"math/big"
 	"os"
@@ -14,7 +14,7 @@ import (
 
 type RequestGGAuth struct{}
 
-func (p *RequestGGAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
+func (p *RequestGGAuth) HandlePacket(buff *common.Reader, ctx client.Context) {
 	var sessionId = buff.ReadD()
 
 	options := ctx.Client.Options()
@@ -30,7 +30,7 @@ func (p *RequestGGAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
 
 type RequestServerList struct{}
 
-func (p *RequestServerList) HandlePacket(_ *common.Reader, ctx auth.Context) {
+func (p *RequestServerList) HandlePacket(_ *common.Reader, ctx client.Context) {
 	serverIp := os.Getenv("game.server.address")
 
 	var publicIp string
@@ -58,7 +58,7 @@ func (p *RequestServerList) HandlePacket(_ *common.Reader, ctx auth.Context) {
 
 type RequestAuth struct{}
 
-func (p *RequestAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
+func (p *RequestAuth) HandlePacket(buff *common.Reader, ctx client.Context) {
 	client := ctx.Client
 	store := ctx.Storage
 	properties := client.Options()
@@ -103,7 +103,7 @@ func (p *RequestAuth) HandlePacket(buff *common.Reader, ctx auth.Context) {
 
 type RequestPlayServer struct{}
 
-func (p *RequestPlayServer) HandlePacket(buff *common.Reader, ctx auth.Context) {
+func (p *RequestPlayServer) HandlePacket(buff *common.Reader, ctx client.Context) {
 	client := ctx.Client
 	options := client.Options()
 

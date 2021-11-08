@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"errors"
-	"l2go-concept/pkg/auth/crypt/blowfish"
+	"l2go-concept/pkg/auth/client/crypt/blowfish"
 	"log"
 )
 

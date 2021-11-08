@@ -1,11 +1,15 @@
-package network
+package clientPackets
 
 import (
 	"l2go-concept/internal/common"
+	"l2go-concept/internal/game"
 	"l2go-concept/internal/game/model"
+	"l2go-concept/pkg/game/client"
 )
 
-func RequestMove(client *Client, reader *common.Reader) {
+type RequestMove struct{}
+
+func (r *RequestMove) ReadPacket(client client.L2Client, _ game.DependencyManager, reader *common.Reader) {
 	targetX := reader.ReadSD()
 	targetY := reader.ReadSD()
 	targetZ := reader.ReadSD()
@@ -14,14 +18,14 @@ func RequestMove(client *Client, reader *common.Reader) {
 	//originY := reader.ReadD()
 	//originZ := reader.ReadD()
 
-	player := client.player
+	player := client.GetPlayer()
 	player.Destination = &model.Location{
 		X: targetX,
 		Y: targetY,
 		Z: targetZ,
 	}
 
-	client.SendPacket(MoveToLocation(client.player))
+	client.SendPacket(MoveToLocationStatic, player)
 
 	// -.-
 	player.Destination = nil
@@ -30,8 +34,20 @@ func RequestMove(client *Client, reader *common.Reader) {
 	player.Z = targetZ
 }
 
-func MoveToLocation(character *model.Character) *common.Buffer {
-	buffer := common.NewBuffer()
+type MoveToLocation struct {
+	character *model.Character
+}
+
+var MoveToLocationStatic = &MoveToLocation{}
+
+func (m *MoveToLocation) WritePacket(buffer *common.Buffer, params ...interface{}) {
+	var character *model.Character
+
+	if m.character == nil {
+		character = (params[0]).(*model.Character)
+	} else {
+		character = m.character
+	}
 
 	buffer.WriteC(0x01)
 	buffer.WriteD(character.EntityId)
@@ -42,5 +58,4 @@ func MoveToLocation(character *model.Character) *common.Buffer {
 	buffer.WriteSD(character.X)
 	buffer.WriteSD(character.Y)
 	buffer.WriteSD(character.Z)
-	return buffer
 }

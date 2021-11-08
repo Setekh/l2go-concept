@@ -8,6 +8,7 @@ import (
 	"l2go-concept/internal/common"
 	"l2go-concept/internal/game/model"
 	"l2go-concept/internal/game/network/crypt"
+	"l2go-concept/pkg/game/client"
 	"log"
 )
 
@@ -15,7 +16,7 @@ type Client struct {
 	cryptEnabled bool
 	crypt        crypt.Crypt
 	conn         gnet.Conn
-	playOk       uint32
+	sessionId    uint32
 	accountName  string
 	player       *model.Character
 }
@@ -32,7 +33,45 @@ func newClient(conn gnet.Conn) *Client {
 	}
 }
 
-func (cl *Client) SendPacket(srcBuff *common.Buffer) error {
+func (cl *Client) GetSessionId() uint32 {
+	return cl.sessionId
+}
+
+func (cl *Client) GetAccountName() string {
+	return cl.accountName
+}
+
+func (cl *Client) GetPlayer() *model.Character {
+	return cl.player
+}
+
+func (cl *Client) EnableCrypt() {
+	cl.cryptEnabled = true
+}
+
+func (cl *Client) Upgrade(accountName string, sessionId uint32) {
+	cl.accountName = accountName
+	cl.sessionId = sessionId
+}
+
+func (cl *Client) SetPlayer(character *model.Character) {
+	cl.player = character
+}
+
+func (cl *Client) SendPacket(packet client.OutgoingPacket, params ...interface{}) {
+	buffer := common.NewBuffer()
+	packet.WritePacket(buffer, params...)
+	err := cl.SendRawPacket(buffer)
+	if err != nil {
+		log.Printf("Failed sending packet!\n%s\n", hex.Dump(buffer.Bytes()))
+	}
+}
+
+func (cl *Client) Close() {
+	cl.conn.Close()
+}
+
+func (cl *Client) SendRawPacket(srcBuff *common.Buffer) error {
 	data := srcBuff.Bytes()
 
 	if cl.cryptEnabled {
@@ -90,8 +129,4 @@ func (cl *Client) Receive(frame []byte) (opcode byte, data []byte, e error) {
 	data = data[1:]
 	e = nil
 	return
-}
-
-func (cl *Client) Close() {
-	cl.conn.Close()
 }

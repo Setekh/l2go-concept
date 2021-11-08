@@ -3,7 +3,7 @@ package network
 import (
 	"l2go-concept/internal/auth/model"
 	"l2go-concept/internal/common"
-	"l2go-concept/pkg/auth"
+	"l2go-concept/pkg/auth/client"
 	"net"
 )
 
@@ -99,7 +99,7 @@ func LoginFail(reason uint32) *common.Buffer {
 	return buffer
 }
 
-func LoginOk(key auth.SessionKey) *common.Buffer {
+func LoginOk(key client.SessionKey) *common.Buffer {
 	buffer := common.NewBuffer()
 
 	buffer.WriteC(0x03)
@@ -121,7 +121,7 @@ func LoginOk(key auth.SessionKey) *common.Buffer {
 	return buffer
 }
 
-func PlayOk(serverId byte, key auth.SessionKey) *common.Buffer {
+func PlayOk(serverId byte, key client.SessionKey) *common.Buffer {
 	buffer := common.NewBuffer()
 	buffer.WriteC(0x07)
 	buffer.WriteD(key.PlayOk1)

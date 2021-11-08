@@ -1,9 +1,10 @@
-package auth
+package client
 
 import (
 	"github.com/panjf2000/gnet"
 	"l2go-concept/internal/common"
-	"l2go-concept/pkg/auth/crypt"
+	"l2go-concept/pkg/auth"
+	"l2go-concept/pkg/auth/client/crypt"
 )
 
 type SessionKey struct {
@@ -13,25 +14,25 @@ type SessionKey struct {
 	LoginOk2 uint32
 }
 
-type ClientOptions struct {
+type Properties struct {
 	SessionId  uint32
 	SessionKey SessionKey
 	RsaKeyPair crypt.ScrambledKeyPair
 	Conn       gnet.Conn
 }
 
-type Client interface {
+type L2Client interface {
 	SendPacketEncoded(buffer *common.Buffer) error
 	SendPacket(buffer *common.Buffer, doChecksum, doBlowfish bool) error
 	Receive(frame []byte) (opcode byte, data []byte, e error)
-	Options() *ClientOptions
+	Options() *Properties
 }
 
 type Context struct {
-	Client  Client
-	Storage Storage
+	Client  L2Client
+	Storage auth.Storage
 }
 
-type ClientPacket interface {
+type IncomingPacket interface {
 	HandlePacket(reader *common.Reader, context Context)
 }

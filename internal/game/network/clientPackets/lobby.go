@@ -1,12 +1,16 @@
-package network
+package clientPackets
 
 import (
 	"l2go-concept/internal/common"
+	"l2go-concept/internal/game"
 	"l2go-concept/internal/game/model"
-	"l2go-concept/internal/game/storage"
+	"l2go-concept/pkg/game/client"
+	"time"
 )
 
-func RequestCharacterList(client *Client, store storage.GameStorage, reader *common.Reader) {
+type RequestCharacterList struct{}
+
+func (r *RequestCharacterList) ReadPacket(client client.L2Client, dm game.DependencyManager, reader *common.Reader) {
 	accountName := reader.ReadString()
 	playOk2 := reader.ReadD()
 	playOk1 := reader.ReadD()
@@ -15,15 +19,28 @@ func RequestCharacterList(client *Client, store storage.GameStorage, reader *com
 
 	println(accountName, loginOk1, loginOk2, playOk1, playOk2)
 
-	client.accountName = accountName
-	client.playOk = playOk1
+	client.Upgrade(accountName, playOk1)
 
+	store := dm.GetStorage()
 	characters := store.LoadAllCharacters(accountName)
-	client.SendPacket(WriteCharacterList(client, characters))
+
+	client.SendPacket(&CharacterList{
+		characters,
+		client.GetAccountName(),
+		client.GetSessionId(),
+	})
 }
 
-func WriteCharacterList(client *Client, characters []model.Character) *common.Buffer {
-	buffer := common.NewBuffer()
+type CharacterList struct {
+	Characters  []model.Character
+	AccountName string
+	SessionId   uint32
+}
+
+func (c *CharacterList) WritePacket(buffer *common.Buffer, _ ...interface{}) {
+	characters := c.Characters
+	accountName := c.AccountName
+	sessionId := c.SessionId
 
 	buffer.WriteC(0x13)
 	buffer.WriteD(uint32(len(characters)))
@@ -39,8 +56,8 @@ func WriteCharacterList(client *Client, characters []model.Character) *common.Bu
 		buffer.WriteS(character.Name)
 		buffer.WriteD(uint32(charId + 1)) // Todo this should be a world entity value
 
-		buffer.WriteS(client.accountName)
-		buffer.WriteD(client.playOk)
+		buffer.WriteS(accountName)
+		buffer.WriteD(sessionId)
 
 		buffer.WriteD(character.ClanId)
 		buffer.WriteD(0x00) // Unk
@@ -113,11 +130,44 @@ func WriteCharacterList(client *Client, characters []model.Character) *common.Bu
 		buffer.WriteD(uint32(lastActiveId)) // Is active character 0x01 for active
 		buffer.WriteC(127)                  // Weapon enchant, min 127?
 	}
-
-	return buffer
 }
 
-func SelectCharacter(sessionId uint32, gameTime int, character *model.Character, buffer *common.Buffer) {
+type RequestSelectCharacter struct{}
+
+func (r *RequestSelectCharacter) ReadPacket(client client.L2Client, dm game.DependencyManager, reader *common.Reader) {
+	store := dm.GetStorage()
+	slot := reader.ReadD()
+
+	var character = store.LoadCharacter(client.GetAccountName(), slot)
+	if character == nil || character.AccessLevel < 0 {
+		client.Close()
+		return
+	}
+
+	character.EntityId = slot + 1 // TODO Please no
+	character.LastAccessed = time.Now()
+	store.SaveCharacter(character)
+
+	client.SetPlayer(character)
+
+	client.SendPacket(&SelectedCharacter{
+		Character: character,
+		SessionId: client.GetSessionId(),
+		GameTime:  uint32(dm.GetTimeController().GetGameTime()),
+	})
+}
+
+type SelectedCharacter struct {
+	Character *model.Character
+	SessionId uint32
+	GameTime  uint32
+}
+
+func (s *SelectedCharacter) WritePacket(buffer *common.Buffer, _ ...interface{}) {
+	character := s.Character
+	sessionId := s.SessionId
+	gameTime := s.GameTime
+
 	buffer.WriteC(0x15)
 	buffer.WriteS(character.Name)
 	buffer.WriteD(character.EntityId)
@@ -153,7 +203,7 @@ func SelectCharacter(sessionId uint32, gameTime int, character *model.Character,
 	buffer.WriteD(0x00) // C3 work
 
 	// extra info
-	buffer.WriteD(uint32(gameTime))
+	buffer.WriteD(gameTime)
 
 	buffer.WriteD(0x00) //
 

@@ -7,21 +7,21 @@ import (
 	"errors"
 	"github.com/panjf2000/gnet"
 	"l2go-concept/internal/common"
-	"l2go-concept/pkg/auth"
-	"l2go-concept/pkg/auth/crypt"
+	"l2go-concept/pkg/auth/client"
+	"l2go-concept/pkg/auth/client/crypt"
 	"log"
 )
 
 type Client struct {
 	blowfishKey []byte
 	sessionId   uint32
-	sessionKey  auth.SessionKey
+	sessionKey  client.SessionKey
 	rsaKeyPair  crypt.ScrambledKeyPair
 	conn        gnet.Conn
 }
 
-func (cl *Client) Options() *auth.ClientOptions {
-	return &auth.ClientOptions{
+func (cl *Client) Options() *client.Properties {
+	return &client.Properties{
 		SessionId:  cl.sessionId,
 		SessionKey: cl.sessionKey,
 		RsaKeyPair: cl.rsaKeyPair,
@@ -52,7 +52,7 @@ func newClient(conn gnet.Conn) *Client {
 		rsaKeyPair:  keyPair,
 		conn:        conn,
 		sessionId:   binary.LittleEndian.Uint32(sessionId),
-		sessionKey: auth.SessionKey{
+		sessionKey: client.SessionKey{
 			PlayOk1:  binary.LittleEndian.Uint32(playOk1),
 			PlayOk2:  binary.LittleEndian.Uint32(playOk2),
 			LoginOk1: binary.LittleEndian.Uint32(loginOk1),
